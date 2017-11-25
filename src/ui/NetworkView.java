@@ -17,7 +17,6 @@ package ui;
 //import libraries
 import java.awt.BorderLayout;
 import java.awt.Font;
-import java.awt.Toolkit;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
@@ -84,7 +83,6 @@ public class NetworkView extends JFrame implements ActionListener
 		this.setBounds(0, 0, DEFAULT_WINDOW_X, DEFAULT_WINDOW_Y);
 		this.setResizable(false);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setIconImage(Toolkit.getDefaultToolkit().getImage(NetworkView.class.getResource("/com/sun/java/swing/plaf/windows/icons/Computer.gif")));
 		
 		JPanel contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
