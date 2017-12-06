@@ -12,9 +12,12 @@
  */
 package ui;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Stroke;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +35,7 @@ public class NodeCanvas extends JPanel
 	//declaring static class constants
 	private static final double SIM_X = LowpanSim.MAX_X;
 	private static final double SIM_Y = LowpanSim.MAX_Y;
+	private static final int ROUTING_THICCNESS = 4;
 	public static final int NODE_DIAMETER = 20;
 	
 	
@@ -126,6 +130,10 @@ public class NodeCanvas extends JPanel
 		//draw all routing as layer 2
 		if ((src != null && dest != null))
 		{
+			Graphics2D g2d = (Graphics2D)g;
+			Stroke reset = g2d.getStroke();
+			g2d.setStroke(new BasicStroke(ROUTING_THICCNESS));
+			
 			if (showRplRouting)
 			{
 				g.setColor(Color.MAGENTA);
@@ -134,10 +142,11 @@ public class NodeCanvas extends JPanel
 			
 			if (showIdealRouting)
 			{
-				g.setColor(Color.BLUE);
-				ArrayList<LowpanNode> path = src.routeTo(dest);
+				ArrayList<LowpanNode> path = src.routeIdeal(dest);		//TODO should not need to reroute each update
 				if (path != null)
 				{
+					g.setColor(Color.CYAN);
+					
 					if (path.size() > 2)
 					{
 						for (int i=0; i<path.size()-1; i++)
@@ -145,7 +154,7 @@ public class NodeCanvas extends JPanel
 							LowpanNode cur = path.get(i);
 							LowpanNode nxt = path.get(i+1);
 							
-							g.drawLine(cur.getLocation().x, cur.getLocation().y, nxt.getLocation().x, nxt.getLocation().y);
+							g2d.drawLine(cur.getLocation().x, cur.getLocation().y, nxt.getLocation().x, nxt.getLocation().y);
 						}
 					}
 					else if (path.size() == 2)
@@ -161,6 +170,8 @@ public class NodeCanvas extends JPanel
 					}
 				}
 			}
+			
+			g2d.setStroke(reset);
 		}
 		else
 		{

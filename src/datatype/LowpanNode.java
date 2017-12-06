@@ -15,7 +15,9 @@ package datatype;
 
 //import libraries
 import java.awt.Point;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 
@@ -190,13 +192,14 @@ public class LowpanNode
 		dump.add(this);
 		
 		//TODO DEL THIS block
+		/*
 		System.out.println("Root:  " + root.getSelf().getId());
 		String s1 = "Layer: ";
 		for (TreeNode<LowpanNode> nxtNode : nxtLayer)
 		{
 			s1 += nxtNode.getSelf().getId() + ", ";
 		}
-		System.out.println(s1);
+		System.out.println(s1); */
 		
 		while (!nxtLayer.isEmpty())
 		{
@@ -218,41 +221,111 @@ public class LowpanNode
 			}
 			
 			//add each unique item in nxtLayer
-			String s = "Layer: ";									//TODO DELETE
+			//String s = "Layer: ";									//TODO DELETE
 			for (TreeNode<LowpanNode> nxtNode : nxtLayer)
 			{
-				s += nxtNode.getSelf().getId() + ", ";				//TODO DELETE
+				//s += nxtNode.getSelf().getId() + ", ";				//TODO DELETE
 				dump.add(nxtNode.getSelf());
 			}
-			System.out.println(s);									//TODO DELETE
+			//System.out.println(s);									//TODO DELETE
 		}
 		
 		return root;
 	}
 	
+	/*
+	//RPL, single DODAG to destination node if possible
+	public ArrayList<LowpanNode> routeRPL(LowpanNode dest, LowpanNode dodag)
+	{
+		//setup
+		ArrayList<LowpanNode> srcToDodag = computeShortestPath(this.treeify(), dodag, null);
+		ArrayList<LowpanNode> dodagToDest = computeShortestPath(dodag.treeify(), this, null);
+		
+		if (srcToDodag != null && dodagToDest != null)
+		{
+			
+		}
+	}*/
+	
 	
 	//route to destination node if the node exists
-	public ArrayList<LowpanNode> routeTo(LowpanNode dest)
+	public ArrayList<LowpanNode> routeIdeal(LowpanNode dest)
 	{
-		/*
-		 * TODO only works for link-local routes (broken and jank)
-		 */
-		
 		//setup
 		TreeNode<LowpanNode> root = this.treeify();
-		ArrayList<LowpanNode> route = new ArrayList<LowpanNode>();
-		route.add(0, this);
+		ArrayList<LowpanNode> route = computeShortestPath(root, dest, null);
 		
-		//check all immediate children
-		for (TreeNode<LowpanNode> child : root.getChildren())
+		//TODO delete this block
+		String s = "";
+		if (route != null)
 		{
-			if (child.getSelf().equals(dest))
+			for (LowpanNode node : route)
 			{
-				route.add(child.getSelf());
-				return route;
+				s += node.getId()  + ", ";
 			}
 		}
-		return null;
+		else
+		{
+			s = "No Routes";
+		}
+		System.out.println(new SimpleDateFormat("HH:mm:ss").format(new Date()) + ":  LPR:  " +s);
+		return route;
+	}
+	
+	
+	//find the shortest path to any TreeNode in a tree structure
+	private ArrayList<LowpanNode> computeShortestPath(TreeNode<LowpanNode> root, LowpanNode dest, ArrayList<LowpanNode> nodeTrace)
+	{
+		//create a shallow copy of current node path, append root to end
+		ArrayList<LowpanNode> path = new ArrayList<LowpanNode>();
+		if (nodeTrace != null)
+		{
+			for (LowpanNode node : nodeTrace)
+			{
+				path.add(node);
+			}
+		}
+		path.add(root.getSelf());
+		
+		
+		if (root.getSelf().equals(dest))
+		{
+			return path;
+		}
+		else
+		{
+			HashSet<ArrayList<LowpanNode>> possibleRoutes = new HashSet<ArrayList<LowpanNode>>();
+			for (TreeNode<LowpanNode>child : root.getChildren())
+			{
+				ArrayList<LowpanNode> newRoute = computeShortestPath(child, dest, path);
+				
+				if (newRoute != null)
+				{
+					possibleRoutes.add(newRoute);
+				}
+			}
+			
+			ArrayList<LowpanNode> bestRoute = null;
+			for (ArrayList<LowpanNode> route : possibleRoutes)
+			{
+				if (bestRoute != null)
+				{
+					if (route.size() == 2)
+					{
+						return route;
+					}
+					else if (bestRoute.size() > route.size())
+					{
+						bestRoute = route;
+					}
+				}
+				else
+				{
+					bestRoute = route;
+				}
+			}
+			return bestRoute;
+		}
 	}
 	
 	
