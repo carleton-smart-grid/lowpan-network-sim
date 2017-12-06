@@ -82,7 +82,7 @@ public class NetworkView extends JFrame implements ActionListener
 	private JComboBox<LowpanNode> destinationSelector;
 	private JCheckBox rplRoutingToggle;
 	private JCheckBox idealRoutingToggle;
-	private JComboBox rootNodeSelector;
+	private JComboBox<LowpanNode> rootNodeSelector;
 	
 	//generic constructor
 	public NetworkView(String title, HashSet<LowpanNode> nodes, MouseListener mouseListener, ActionListener actionListener, KeyListener keyListener)
@@ -333,7 +333,7 @@ public class NetworkView extends JFrame implements ActionListener
 		
 		//add label fro DODAG select 
 		JTextField dodagNodeLabel = new JTextField();
-		dodagNodeLabel.setText("Root Node:");
+		dodagNodeLabel.setText("DODAG:");
 		dodagNodeLabel.setEditable(false);
 		dodagNodeLabel.setColumns(10);
 		dodagNodeLabel.setBorder(null);
@@ -341,7 +341,7 @@ public class NetworkView extends JFrame implements ActionListener
 		routingPanel.add(dodagNodeLabel);
 		
 		//add DODAG select for RPL routing
-		rootNodeSelector = new JComboBox();
+		rootNodeSelector = new JComboBox<LowpanNode>();
 		rootNodeSelector.setEnabled(false);
 		rootNodeSelector.setBounds(186, 90, 79, 22);
 		routingPanel.add(rootNodeSelector);
@@ -407,12 +407,14 @@ public class NetworkView extends JFrame implements ActionListener
 		//remove old nodes
 		sourceSelector.removeAllItems();
 		destinationSelector.removeAllItems();
+		rootNodeSelector.removeAllItems();
 		
 		//add new items
 		for (LowpanNode node : nodes)
 		{
 			sourceSelector.addItem(node);
 			destinationSelector.addItem(node);
+			rootNodeSelector.addItem(node);
 		}
 	}
 	
@@ -487,7 +489,8 @@ public class NetworkView extends JFrame implements ActionListener
 		
 		//update routing information		TODO these casts should be unnecessary
 		canvasPane.setRoutingNodes((LowpanNode)sourceSelector.getSelectedItem(), 
-									(LowpanNode)destinationSelector.getSelectedItem());
+									(LowpanNode)destinationSelector.getSelectedItem(),
+									(LowpanNode)rootNodeSelector.getSelectedItem());
 		
 		//set flags
 		canvasPane.setMeshLines(toggleMesh.isSelected());

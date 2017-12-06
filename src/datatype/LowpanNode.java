@@ -233,19 +233,59 @@ public class LowpanNode
 		return root;
 	}
 	
-	/*
+	
 	//RPL, single DODAG to destination node if possible
+	/*
+	 * TODO
+	 * only handles extreme base case where traffic MUST be routed through dodag
+	 */
 	public ArrayList<LowpanNode> routeRPL(LowpanNode dest, LowpanNode dodag)
 	{
 		//setup
 		ArrayList<LowpanNode> srcToDodag = computeShortestPath(this.treeify(), dodag, null);
-		ArrayList<LowpanNode> dodagToDest = computeShortestPath(dodag.treeify(), this, null);
+		ArrayList<LowpanNode> dodagToDest = computeShortestPath(dodag.treeify(), dest, null);
 		
 		if (srcToDodag != null && dodagToDest != null)
 		{
+			//TODO delete this block
+			String s = "src->root:  ";
+			for (LowpanNode node : srcToDodag)
+			{
+				s += node.getId()  + ", ";
+			}
+			s += "  root->src:  ";
+			for (LowpanNode node : dodagToDest)
+			{
+				s += node.getId() + ", ";
+			}
+			System.out.println(new SimpleDateFormat("HH:mm:ss").format(new Date()) + ":  " +s);
 			
+			if (dodagToDest.size() == 2)
+			{
+				dodagToDest.remove(1);
+			}
+			
+			srcToDodag.remove(srcToDodag.size()-1);
+			for (LowpanNode node : dodagToDest)
+			{
+				srcToDodag.add(node);
+			}
+			
+			//TODO delete this block
+			s = "";
+			for (LowpanNode node : srcToDodag)
+			{
+				s += node.getId()  + ", ";
+			}
+			System.out.println(new SimpleDateFormat("HH:mm:ss").format(new Date()) + ":  RPL:  " +s);
+			
+			return srcToDodag;
 		}
-	}*/
+		else
+		{
+			return null;
+		}
+	}
 	
 	
 	//route to destination node if the node exists
@@ -269,6 +309,7 @@ public class LowpanNode
 			s = "No Routes";
 		}
 		System.out.println(new SimpleDateFormat("HH:mm:ss").format(new Date()) + ":  LPR:  " +s);
+		
 		return route;
 	}
 	
