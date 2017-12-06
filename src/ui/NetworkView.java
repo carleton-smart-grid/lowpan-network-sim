@@ -40,6 +40,7 @@ import java.awt.Dimension;
 //import packages
 import ctrl.LowpanSim;
 import datatype.LowpanNode;
+import javax.swing.JComboBox;
 
 
 
@@ -62,6 +63,7 @@ public class NetworkView extends JFrame implements ActionListener
 	//private static final Font CONSOLE_FONT = new Font("Monospaced", Font.PLAIN, 13);
 	
 	//declaring local instance variables
+	private HashSet<LowpanNode> nodes;
 	private JTextArea log;
 	private NodeCanvas canvasPane;
 	private JTextArea nodeInfoText;
@@ -74,6 +76,13 @@ public class NetworkView extends JFrame implements ActionListener
 	//declaring local instance variables
 	LowpanNode activeNode;
 	private JTextField labelID;
+	private JTextField sourceLabel;
+	private JTextField destLabel;
+	private JComboBox<LowpanNode> sourceSelector;
+	private JComboBox<LowpanNode> destinationSelector;
+	private JCheckBox rplRoutingToggle;
+	private JCheckBox idealRoutingToggle;
+	private JComboBox rootNodeSelector;
 	
 	//generic constructor
 	public NetworkView(String title, HashSet<LowpanNode> nodes, MouseListener mouseListener, ActionListener actionListener, KeyListener keyListener)
@@ -90,7 +99,8 @@ public class NetworkView extends JFrame implements ActionListener
 		contentPane.setLayout(new BorderLayout(0, 0));
 		
 		//init non-gui components
-		activeNode = null;
+		this.activeNode = null;
+		this.nodes = nodes;
 
 		//add main canvas for network
 		canvasPane = new NodeCanvas(nodes);
@@ -103,7 +113,7 @@ public class NetworkView extends JFrame implements ActionListener
 		
 		//add aux pane for node info/log
 		JPanel auxPane = new JPanel();
-		auxPane.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		//auxPane.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		auxPane.setLayout(new BorderLayout(0, 0));
 		auxPane.setPreferredSize(new Dimension(AUX_PANEL_WIDTH,0));
 		contentPane.add(auxPane, BorderLayout.EAST);
@@ -117,6 +127,7 @@ public class NetworkView extends JFrame implements ActionListener
 		//setup panel for user input
 		JPanel inputPanel = new JPanel();
 		nodePanel.add(inputPanel);
+		inputPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		inputPanel.setLayout(null);
 		
 		//add buttons to input panel
@@ -212,7 +223,7 @@ public class NetworkView extends JFrame implements ActionListener
 		//add panel for display node connections and misc options
 		JPanel auxSubPanel = new JPanel();
 		auxSubPanel.setLayout(null);
-		auxSubPanel.setBorder(null);
+		auxSubPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		nodePanel.add(auxSubPanel);
 		
 		//add button to add new nodes
@@ -250,7 +261,6 @@ public class NetworkView extends JFrame implements ActionListener
 		
 		toggleDistance = new JCheckBox("Edge Labels");
 		toggleDistance.setSelected(false);
-		toggleDistance.setEnabled(false);				//TODO remove later when done
 		toggleDistance.setBounds(147, 197, 120, 23);
 		toggleDistance.addActionListener(this);
 		auxSubPanel.add(toggleDistance);
@@ -271,13 +281,75 @@ public class NetworkView extends JFrame implements ActionListener
 
 		//add text log to aux panel
 		JPanel routingPanel = new JPanel();
+		routingPanel.setLayout(null);
 		routingPanel.setPreferredSize(new Dimension(0, RP_HEIGHT));
+		routingPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		auxPane.add(routingPanel, BorderLayout.SOUTH);
+		
+		//add labels to routing panel
+		sourceLabel = new JTextField();
+		sourceLabel.setText("Source:");
+		sourceLabel.setBorder(null);
+		sourceLabel.setEditable(false);
+		sourceLabel.setFont(INPUT_LABEL_FONT);
+		sourceLabel.setBounds(10, 11, 114, 20);
+		routingPanel.add(sourceLabel);
+		sourceLabel.setColumns(10);
+		
+		destLabel = new JTextField();
+		destLabel.setText("Destination:");
+		destLabel.setFont(new Font("Tahoma", Font.BOLD, 16));
+		destLabel.setEditable(false);
+		destLabel.setColumns(10);
+		destLabel.setBorder(null);
+		destLabel.setBounds(10, 42, 114, 20);
+		routingPanel.add(destLabel);
+		
+		//add selectors for routing source/destination
+		sourceSelector = new JComboBox<LowpanNode>();
+		sourceSelector.setEnabled(false);
+		sourceSelector.addActionListener(this);
+		sourceSelector.setBounds(151, 12, 114, 22);
+		routingPanel.add(sourceSelector);
+		
+		destinationSelector = new JComboBox<LowpanNode>();
+		destinationSelector.setEnabled(false);
+		destinationSelector.addActionListener(this);
+		destinationSelector.setBounds(151, 43, 114, 22);
+		routingPanel.add(destinationSelector);
+		
+		//add toggles for routing modes
+		rplRoutingToggle = new JCheckBox("RPL Routing");
+		rplRoutingToggle.setSelected(false);
+		rplRoutingToggle.setBounds(10, 90, 100, 23);
+		rplRoutingToggle.addActionListener(this);
+		routingPanel.add(rplRoutingToggle);
+		
+		idealRoutingToggle = new JCheckBox("Ideal Routing");
+		idealRoutingToggle.setSelected(false);
+		idealRoutingToggle.setBounds(10, 120, 100, 23);
+		idealRoutingToggle.addActionListener(this);
+		routingPanel.add(idealRoutingToggle);
+		
+		//add label fro DODAG select 
+		JTextField dodagNodeLabel = new JTextField();
+		dodagNodeLabel.setText("Root Node:");
+		dodagNodeLabel.setEditable(false);
+		dodagNodeLabel.setColumns(10);
+		dodagNodeLabel.setBorder(null);
+		dodagNodeLabel.setBounds(116, 91, 60, 20);
+		routingPanel.add(dodagNodeLabel);
+		
+		//add DODAG select for RPL routing
+		rootNodeSelector = new JComboBox();
+		rootNodeSelector.setEnabled(false);
+		rootNodeSelector.setBounds(186, 90, 79, 22);
+		routingPanel.add(rootNodeSelector);
 		
 		//set visible
 		this.setVisible(true);
 	}
-	
+
 	
 	//hacky solution to use key listeners
 	public void enabledKeyInput()
@@ -325,6 +397,22 @@ public class NetworkView extends JFrame implements ActionListener
 			xField.setText("");
 			yField.setText("");
 			nodeInfoText.setText("");
+		}
+	}
+	
+	
+	//update routing selectors
+	public void updateRoutingSelectors(HashSet<LowpanNode> nodes)
+	{
+		//remove old nodes
+		sourceSelector.removeAllItems();
+		destinationSelector.removeAllItems();
+		
+		//add new items
+		for (LowpanNode node : nodes)
+		{
+			sourceSelector.addItem(node);
+			destinationSelector.addItem(node);
 		}
 	}
 	
@@ -388,10 +476,26 @@ public class NetworkView extends JFrame implements ActionListener
 	//toggle mesh settings
 	public void actionPerformed(ActionEvent arg0) 
 	{
+		//set enable for edge distances and rpl root node selector
+		toggleDistance.setEnabled(toggleMesh.isSelected());	
+		rootNodeSelector.setEnabled(rplRoutingToggle.isSelected());
+		
+		//set enable for routing selectors
+		boolean route = (idealRoutingToggle.isSelected() || rplRoutingToggle.isSelected());
+		sourceSelector.setEnabled(route);
+		destinationSelector.setEnabled(route);
+		
+		//update routing information		TODO these casts should be unnecessary
+		canvasPane.setRoutingNodes((LowpanNode)sourceSelector.getSelectedItem(), 
+									(LowpanNode)destinationSelector.getSelectedItem());
+		
+		//set flags
 		canvasPane.setMeshLines(toggleMesh.isSelected());
 		canvasPane.setSignalWells(toggleSignalWells.isSelected());
 		canvasPane.setNodeIds(toggleLabels.isSelected());
 		canvasPane.setDistances(toggleDistance.isSelected());
+		canvasPane.setIdealRouting(idealRoutingToggle.isSelected());
+		canvasPane.setRplRouting(rplRoutingToggle.isSelected());
 		this.update();
 	}
 }

@@ -15,8 +15,11 @@ package ui;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -37,6 +40,9 @@ public class NodeCanvas extends JPanel
 	private boolean showMeshLines;
 	private boolean showNodeIds;
 	private boolean showDistances;
+	private boolean showIdealRouting;
+	private boolean showRplRouting;
+	private LowpanNode src, dest;
 	HashSet<LowpanNode> nodes;
 	
 	//generic constructor
@@ -47,6 +53,10 @@ public class NodeCanvas extends JPanel
 		showMeshLines = true;
 		showNodeIds = true;
 		showDistances = false;
+		showIdealRouting = false;
+		showRplRouting = false;
+		src = null;
+		dest = null;
 		this.nodes = nodes;
 	}
 	
@@ -68,6 +78,19 @@ public class NodeCanvas extends JPanel
 	{
 		showNodeIds = flag;
 	}
+	public void setRplRouting(boolean flag)
+	{
+		showRplRouting = flag;
+	}
+	public void setIdealRouting(boolean flag)
+	{
+		showIdealRouting = flag;
+	}
+	public void setRoutingNodes(LowpanNode src, LowpanNode dest)
+	{
+		this.src = src;
+		this.dest = dest;
+	}
 	
 	
 	@Override
@@ -80,22 +103,71 @@ public class NodeCanvas extends JPanel
 		{
 			for (LowpanNode node : nodes)
 			{
-				g.setColor(Color.GREEN);
 				for (LowpanNode neighbour : node.getNeighbours())
 				{
 					//draw edge
+					g.setColor(Color.GREEN);
 					g.drawLine(node.getLocation().x, node.getLocation().y, neighbour.getLocation().x, neighbour.getLocation().y);
 					
 					//label edge
 					if(showDistances)
 					{
-						//TODO
+						g.setColor(Color.BLACK);
+						
+						String dist = String.format("%.02f", node.getLocation().distance(neighbour.getLocation()));
+						int x = ((node.getLocation().x + neighbour.getLocation().x) / 2) + 10;
+						int y = ((node.getLocation().y + neighbour.getLocation().y) / 2) + 10;
+						g.drawString(dist, x, y);
 					}
 				}
 			}
 		}
 		
-		//draw all nodes and wells as layer 2
+		//draw all routing as layer 2
+		if ((src != null && dest != null))
+		{
+			if (showRplRouting)
+			{
+				g.setColor(Color.MAGENTA);
+				//TODO RPL ROUTE
+			}
+			
+			if (showIdealRouting)
+			{
+				g.setColor(Color.BLUE);
+				ArrayList<LowpanNode> path = src.routeTo(dest);
+				if (path != null)
+				{
+					if (path.size() > 2)
+					{
+						for (int i=0; i<path.size()-1; i++)
+						{
+							LowpanNode cur = path.get(i);
+							LowpanNode nxt = path.get(i+1);
+							
+							g.drawLine(cur.getLocation().x, cur.getLocation().y, nxt.getLocation().x, nxt.getLocation().y);
+						}
+					}
+					else if (path.size() == 2)
+					{
+						LowpanNode cur = path.get(0);
+						LowpanNode nxt = path.get(1);
+						
+						g.drawLine(cur.getLocation().x, cur.getLocation().y, nxt.getLocation().x, nxt.getLocation().y);
+					}
+					else
+					{
+						//TODO throw error, unexpected routing result
+					}
+				}
+			}
+		}
+		else
+		{
+			System.out.println("NULL");
+		}
+		
+		//draw all nodes and wells as layer 3
 		for (LowpanNode node : nodes)
 		{
 			//draw node

@@ -15,10 +15,13 @@ package datatype;
 
 //import libraries
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 //import packages
 import ctrl.LowpanSim;
+import datatype.tree.TreeNode;
 
 
 
@@ -164,6 +167,95 @@ public class LowpanNode
 	}
 	
 	
+	/* convert into tree structure with self as root
+	 * guaranteed to only include shortest path(s) to any destination node
+	 */
+	public TreeNode<LowpanNode> treeify()
+	{
+		LinkedList<TreeNode<LowpanNode>> curLayer = new LinkedList<TreeNode<LowpanNode>>();
+		LinkedList<TreeNode<LowpanNode>> nxtLayer = new LinkedList<TreeNode<LowpanNode>>();
+		HashSet<LowpanNode> dump = new HashSet<LowpanNode>();
+		TreeNode<LowpanNode> root = new TreeNode<LowpanNode>(null, this);
+		
+		//add children directly to root node
+		for (LowpanNode neighbour : this.neighbours)
+		{
+			if (neighbour != this)
+			{
+				TreeNode<LowpanNode> child = root.addChild(neighbour);
+				dump.add(neighbour);
+				nxtLayer.add(child);
+			}
+		}
+		dump.add(this);
+		
+		//TODO DEL THIS block
+		System.out.println("Root:  " + root.getSelf().getId());
+		String s1 = "Layer: ";
+		for (TreeNode<LowpanNode> nxtNode : nxtLayer)
+		{
+			s1 += nxtNode.getSelf().getId() + ", ";
+		}
+		System.out.println(s1);
+		
+		while (!nxtLayer.isEmpty())
+		{
+			//swap current layer to next layer
+			curLayer = nxtLayer;
+			nxtLayer = new LinkedList<TreeNode<LowpanNode>>();
+			
+			//iterate through all neighbor nodes in current layer
+			for (TreeNode<LowpanNode> node : curLayer)
+			{
+				for (LowpanNode linked : node.getSelf().getNeighbours())
+				{
+					if (!dump.contains(linked))
+					{
+						TreeNode<LowpanNode> child = node.addChild(linked);
+						nxtLayer.add(child);
+					}
+				}
+			}
+			
+			//add each unique item in nxtLayer
+			String s = "Layer: ";									//TODO DELETE
+			for (TreeNode<LowpanNode> nxtNode : nxtLayer)
+			{
+				s += nxtNode.getSelf().getId() + ", ";				//TODO DELETE
+				dump.add(nxtNode.getSelf());
+			}
+			System.out.println(s);									//TODO DELETE
+		}
+		
+		return root;
+	}
+	
+	
+	//route to destination node if the node exists
+	public ArrayList<LowpanNode> routeTo(LowpanNode dest)
+	{
+		/*
+		 * TODO only works for link-local routes (broken and jank)
+		 */
+		
+		//setup
+		TreeNode<LowpanNode> root = this.treeify();
+		ArrayList<LowpanNode> route = new ArrayList<LowpanNode>();
+		route.add(0, this);
+		
+		//check all immediate children
+		for (TreeNode<LowpanNode> child : root.getChildren())
+		{
+			if (child.getSelf().equals(dest))
+			{
+				route.add(child.getSelf());
+				return route;
+			}
+		}
+		return null;
+	}
+	
+	
 	@Override
 	//generic equals
 	public boolean equals(Object obj)
@@ -183,4 +275,11 @@ public class LowpanNode
 		}
 	}
 	
+	
+	@Override
+	//nice printable
+	public String toString()
+	{
+		return "Node " + id;
+	}
 }
