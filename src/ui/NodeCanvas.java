@@ -12,11 +12,17 @@
  */
 package ui;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Stroke;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -29,6 +35,7 @@ public class NodeCanvas extends JPanel
 	//declaring static class constants
 	private static final double SIM_X = LowpanSim.MAX_X;
 	private static final double SIM_Y = LowpanSim.MAX_Y;
+	private static final int ROUTING_THICCNESS = 4;
 	public static final int NODE_DIAMETER = 20;
 	
 	
@@ -37,6 +44,9 @@ public class NodeCanvas extends JPanel
 	private boolean showMeshLines;
 	private boolean showNodeIds;
 	private boolean showDistances;
+	private boolean showIdealRouting;
+	private boolean showRplRouting;
+	private LowpanNode src, dest, dodag;
 	HashSet<LowpanNode> nodes;
 	
 	//generic constructor
@@ -47,6 +57,11 @@ public class NodeCanvas extends JPanel
 		showMeshLines = true;
 		showNodeIds = true;
 		showDistances = false;
+		showIdealRouting = false;
+		showRplRouting = false;
+		src = null;
+		dest = null;
+		dodag = null;
 		this.nodes = nodes;
 	}
 	
@@ -68,6 +83,20 @@ public class NodeCanvas extends JPanel
 	{
 		showNodeIds = flag;
 	}
+	public void setRplRouting(boolean flag)
+	{
+		showRplRouting = flag;
+	}
+	public void setIdealRouting(boolean flag)
+	{
+		showIdealRouting = flag;
+	}
+	public void setRoutingNodes(LowpanNode src, LowpanNode dest, LowpanNode dodag)
+	{
+		this.src = src;
+		this.dest = dest;
+		this.dodag = dodag;
+	}
 	
 	
 	@Override
@@ -80,22 +109,104 @@ public class NodeCanvas extends JPanel
 		{
 			for (LowpanNode node : nodes)
 			{
-				g.setColor(Color.GREEN);
 				for (LowpanNode neighbour : node.getNeighbours())
 				{
 					//draw edge
+					g.setColor(Color.GREEN);
 					g.drawLine(node.getLocation().x, node.getLocation().y, neighbour.getLocation().x, neighbour.getLocation().y);
 					
 					//label edge
 					if(showDistances)
 					{
-						//TODO
+						g.setColor(Color.BLACK);
+						
+						String dist = String.format("%.02f", node.getLocation().distance(neighbour.getLocation()));
+						int x = ((node.getLocation().x + neighbour.getLocation().x) / 2) + 10;
+						int y = ((node.getLocation().y + neighbour.getLocation().y) / 2) + 10;
+						g.drawString(dist, x, y);
 					}
 				}
 			}
 		}
 		
-		//draw all nodes and wells as layer 2
+		//draw all routing as layer 2
+		if ((src != null && dest != null))
+		{
+			Graphics2D g2d = (Graphics2D)g;
+			Stroke reset = g2d.getStroke();
+			
+			if (showRplRouting && dodag != null)
+			{
+				ArrayList<LowpanNode> path = src.routeRPL(dest, dodag); //TODO should not need to reroute each update
+				if (path != null)
+				{
+					g2d.setStroke(new BasicStroke(ROUTING_THICCNESS+4));
+					g.setColor(Color.MAGENTA);
+					
+					if (path.size() > 2)
+					{
+						for (int i=0; i<path.size()-1; i++)
+						{
+							LowpanNode cur = path.get(i);
+							LowpanNode nxt = path.get(i+1);
+							
+							g2d.drawLine(cur.getLocation().x, cur.getLocation().y, nxt.getLocation().x, nxt.getLocation().y);
+						}
+					}
+					else if (path.size() == 2)
+					{
+						LowpanNode cur = path.get(0);
+						LowpanNode nxt = path.get(1);
+						
+						g.drawLine(cur.getLocation().x, cur.getLocation().y, nxt.getLocation().x, nxt.getLocation().y);
+					}
+					else
+					{
+						//TODO routing error
+					}
+				}
+			}
+			
+			if (showIdealRouting)
+			{
+				ArrayList<LowpanNode> path = src.routeIdeal(dest);		//TODO should not need to reroute each update
+				if (path != null)
+				{
+					g.setColor(Color.CYAN);
+					g2d.setStroke(new BasicStroke(ROUTING_THICCNESS));
+					
+					if (path.size() > 2)
+					{
+						for (int i=0; i<path.size()-1; i++)
+						{
+							LowpanNode cur = path.get(i);
+							LowpanNode nxt = path.get(i+1);
+							
+							g2d.drawLine(cur.getLocation().x, cur.getLocation().y, nxt.getLocation().x, nxt.getLocation().y);
+						}
+					}
+					else if (path.size() == 2)
+					{
+						LowpanNode cur = path.get(0);
+						LowpanNode nxt = path.get(1);
+						
+						g.drawLine(cur.getLocation().x, cur.getLocation().y, nxt.getLocation().x, nxt.getLocation().y);
+					}
+					else
+					{
+						//TODO throw error, unexpected routing result
+					}
+				}
+			}
+			
+			g2d.setStroke(reset);
+		}
+		else
+		{
+			System.out.println("NULL");
+		}
+		
+		//draw all nodes and wells as layer 3
 		for (LowpanNode node : nodes)
 		{
 			//draw node

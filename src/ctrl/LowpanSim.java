@@ -68,6 +68,8 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 		int id = dispatch.getNextID();
 		LowpanNode node = new LowpanNode(id, name, range, locX, locY);
 		nodes.add(node);
+		
+		ui.updateRoutingSelectors(nodes);
 		computePaths();
 	}
 	
@@ -83,9 +85,24 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 		nodes.remove(node);
 		dispatch.retireID(node.getId());
 		node = null;
+		
+		ui.updateRoutingSelectors(nodes);
 		computePaths();
 	}
 	
+	
+	//remove all nodes from simulator
+	public void removeAllNodes()
+	{
+		nodes.clear();
+	}
+	
+	
+	//get all nodes in simulation
+	public HashSet<LowpanNode> getNodes()
+	{
+		return nodes;
+	}
 	
 	@Override
 	//respond to update/remove req from interface
@@ -93,7 +110,7 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 	{
 		//get active node
 		LowpanNode activeNode = ui.getActiveNode();
-		
+
 		//determine source
 		if (activeNode != null)
 		{
@@ -104,7 +121,7 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 					this.removeNode(activeNode);
 					ui.setActiveNode(null);
 					break;
-				
+
 				//update active node
 				case (NetworkView.BTN_UPDATE):
 					//get inputs
@@ -141,12 +158,13 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 				
 				//remove all nodes
 				case (NetworkView.BTN_REMOVE_ALL):
-					nodes.clear();
+					this.removeAllNodes();
 					dispatch.reset();
 					break;
 			}
 			
-			//update mesh
+			//update mesh and routing selectors
+			ui.updateRoutingSelectors(nodes);
 			ui.update();
 		}
 	}
@@ -189,7 +207,6 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 				//move up a step
 				case (KeyEvent.VK_UP):
 					activeNode.decY();
-					ui.update();
 					break;
 					
 				//move down a step
@@ -255,11 +272,8 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 			{
 				if (!self.equals(pair))
 				{
-					//System.out.println(self.getId() + " ... " + pair.getId() + " : " +
-					//		self.getLocation().distance(pair.getLocation()));
 					if ( self.getLocation().distance(pair.getLocation()) <= self.getRange()+pair.getRange())
 					{
-						//System.out.println(self.getId() + " --> " + pair.getId());
 						self.addNeighbour(pair);
 						pair.addNeighbour(self);
 					}
@@ -291,5 +305,18 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 		sim.addNode("Rivendell CA", 100, 260, 295);
 		sim.addNode("Barad-dur CA", 100, 400, 430);
 		sim.addNode("Helm's Deep CA", 100, 550, 550);
+		
+		/*
+		HashSet<LowpanNode> nodes = sim.getNodes();
+		boolean flag = true;
+		for (LowpanNode node : nodes)
+		{
+			if (flag)
+			{
+				System.out.println("treeify!");
+				node.treeify();
+				flag = false;
+			}
+		}	*/
 	}
 }

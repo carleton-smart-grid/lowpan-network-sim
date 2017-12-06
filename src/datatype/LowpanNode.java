@@ -15,10 +15,15 @@ package datatype;
 
 //import libraries
 import java.awt.Point;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 //import packages
 import ctrl.LowpanSim;
+import datatype.tree.TreeNode;
 
 
 
@@ -164,6 +169,207 @@ public class LowpanNode
 	}
 	
 	
+	/* convert into tree structure with self as root
+	 * guaranteed to only include shortest path(s) to any destination node
+	 */
+	public TreeNode<LowpanNode> treeify()
+	{
+		LinkedList<TreeNode<LowpanNode>> curLayer = new LinkedList<TreeNode<LowpanNode>>();
+		LinkedList<TreeNode<LowpanNode>> nxtLayer = new LinkedList<TreeNode<LowpanNode>>();
+		HashSet<LowpanNode> dump = new HashSet<LowpanNode>();
+		TreeNode<LowpanNode> root = new TreeNode<LowpanNode>(null, this);
+		
+		//add children directly to root node
+		for (LowpanNode neighbour : this.neighbours)
+		{
+			if (neighbour != this)
+			{
+				TreeNode<LowpanNode> child = root.addChild(neighbour);
+				dump.add(neighbour);
+				nxtLayer.add(child);
+			}
+		}
+		dump.add(this);
+		
+		//TODO DEL THIS block
+		/*
+		System.out.println("Root:  " + root.getSelf().getId());
+		String s1 = "Layer: ";
+		for (TreeNode<LowpanNode> nxtNode : nxtLayer)
+		{
+			s1 += nxtNode.getSelf().getId() + ", ";
+		}
+		System.out.println(s1); */
+		
+		while (!nxtLayer.isEmpty())
+		{
+			//swap current layer to next layer
+			curLayer = nxtLayer;
+			nxtLayer = new LinkedList<TreeNode<LowpanNode>>();
+			
+			//iterate through all neighbor nodes in current layer
+			for (TreeNode<LowpanNode> node : curLayer)
+			{
+				for (LowpanNode linked : node.getSelf().getNeighbours())
+				{
+					if (!dump.contains(linked))
+					{
+						TreeNode<LowpanNode> child = node.addChild(linked);
+						nxtLayer.add(child);
+					}
+				}
+			}
+			
+			//add each unique item in nxtLayer
+			//String s = "Layer: ";									//TODO DELETE
+			for (TreeNode<LowpanNode> nxtNode : nxtLayer)
+			{
+				//s += nxtNode.getSelf().getId() + ", ";				//TODO DELETE
+				dump.add(nxtNode.getSelf());
+			}
+			//System.out.println(s);									//TODO DELETE
+		}
+		
+		return root;
+	}
+	
+	
+	//RPL, single DODAG to destination node if possible
+	/*
+	 * TODO
+	 * only handles extreme base case where traffic MUST be routed through dodag
+	 */
+	public ArrayList<LowpanNode> routeRPL(LowpanNode dest, LowpanNode dodag)
+	{
+		//setup
+		ArrayList<LowpanNode> srcToDodag = computeShortestPath(this.treeify(), dodag, null);
+		ArrayList<LowpanNode> dodagToDest = computeShortestPath(dodag.treeify(), dest, null);
+		
+		if (srcToDodag != null && dodagToDest != null)
+		{
+			//TODO delete this block
+			String s = "src->root:  ";
+			for (LowpanNode node : srcToDodag)
+			{
+				s += node.getId()  + ", ";
+			}
+			s += "  root->src:  ";
+			for (LowpanNode node : dodagToDest)
+			{
+				s += node.getId() + ", ";
+			}
+			System.out.println(new SimpleDateFormat("HH:mm:ss").format(new Date()) + ":  " +s);
+			
+			if (dodagToDest.size() == 2)
+			{
+				dodagToDest.remove(1);
+			}
+			
+			srcToDodag.remove(srcToDodag.size()-1);
+			for (LowpanNode node : dodagToDest)
+			{
+				srcToDodag.add(node);
+			}
+			
+			//TODO delete this block
+			s = "";
+			for (LowpanNode node : srcToDodag)
+			{
+				s += node.getId()  + ", ";
+			}
+			System.out.println(new SimpleDateFormat("HH:mm:ss").format(new Date()) + ":  RPL:  " +s);
+			
+			return srcToDodag;
+		}
+		else
+		{
+			return null;
+		}
+	}
+	
+	
+	//route to destination node if the node exists
+	public ArrayList<LowpanNode> routeIdeal(LowpanNode dest)
+	{
+		//setup
+		TreeNode<LowpanNode> root = this.treeify();
+		ArrayList<LowpanNode> route = computeShortestPath(root, dest, null);
+		
+		//TODO delete this block
+		String s = "";
+		if (route != null)
+		{
+			for (LowpanNode node : route)
+			{
+				s += node.getId()  + ", ";
+			}
+		}
+		else
+		{
+			s = "No Routes";
+		}
+		System.out.println(new SimpleDateFormat("HH:mm:ss").format(new Date()) + ":  LPR:  " +s);
+		
+		return route;
+	}
+	
+	
+	//find the shortest path to any TreeNode in a tree structure
+	private ArrayList<LowpanNode> computeShortestPath(TreeNode<LowpanNode> root, LowpanNode dest, ArrayList<LowpanNode> nodeTrace)
+	{
+		//create a shallow copy of current node path, append root to end
+		ArrayList<LowpanNode> path = new ArrayList<LowpanNode>();
+		if (nodeTrace != null)
+		{
+			for (LowpanNode node : nodeTrace)
+			{
+				path.add(node);
+			}
+		}
+		path.add(root.getSelf());
+		
+		
+		if (root.getSelf().equals(dest))
+		{
+			return path;
+		}
+		else
+		{
+			HashSet<ArrayList<LowpanNode>> possibleRoutes = new HashSet<ArrayList<LowpanNode>>();
+			for (TreeNode<LowpanNode>child : root.getChildren())
+			{
+				ArrayList<LowpanNode> newRoute = computeShortestPath(child, dest, path);
+				
+				if (newRoute != null)
+				{
+					possibleRoutes.add(newRoute);
+				}
+			}
+			
+			ArrayList<LowpanNode> bestRoute = null;
+			for (ArrayList<LowpanNode> route : possibleRoutes)
+			{
+				if (bestRoute != null)
+				{
+					if (route.size() == 2)
+					{
+						return route;
+					}
+					else if (bestRoute.size() > route.size())
+					{
+						bestRoute = route;
+					}
+				}
+				else
+				{
+					bestRoute = route;
+				}
+			}
+			return bestRoute;
+		}
+	}
+	
+	
 	@Override
 	//generic equals
 	public boolean equals(Object obj)
@@ -183,4 +389,11 @@ public class LowpanNode
 		}
 	}
 	
+	
+	@Override
+	//nice printable
+	public String toString()
+	{
+		return "Node " + id;
+	}
 }
