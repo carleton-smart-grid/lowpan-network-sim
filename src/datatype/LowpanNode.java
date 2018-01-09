@@ -235,10 +235,6 @@ public class LowpanNode
 	
 	
 	//RPL, single DODAG to destination node if possible
-	/*
-	 * TODO
-	 * only handles extreme base case where traffic MUST be routed through dodag
-	 */
 	public ArrayList<LowpanNode> routeRPL(LowpanNode dest, LowpanNode dodag)
 	{
 		//setup
@@ -260,12 +256,7 @@ public class LowpanNode
 			}
 			System.out.println(new SimpleDateFormat("HH:mm:ss").format(new Date()) + ":  " +s);
 			
-			if (dodagToDest.size() == 2)
-			{
-				dodagToDest.remove(1);
-			}
-			
-			srcToDodag.remove(srcToDodag.size()-1);
+			dodagToDest.remove(0);
 			for (LowpanNode node : dodagToDest)
 			{
 				srcToDodag.add(node);
