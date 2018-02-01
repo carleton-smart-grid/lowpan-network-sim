@@ -49,6 +49,7 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 	private HashSet<LowpanNode> nodes;
 	private IdDispatcher dispatch;
 	private NetworkView ui;
+	private boolean radioType;		// T => easy || F => real
 	
 	
 	//generic constructor
@@ -59,6 +60,7 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 		dispatch = new IdDispatcher();
 		ui = new NetworkView(WINDOW_NAME, nodes, this, this, this);
 		ui.enabledKeyInput();
+		radioType = true;
 	}
 	
 	
@@ -272,14 +274,30 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 			{
 				if (!self.equals(pair))
 				{
-					if ( self.getLocation().distance(pair.getLocation()) <= self.getRange()+pair.getRange())
+					//simple radio
+					if (radioType)
 					{
-						self.addNeighbour(pair);
-						pair.addNeighbour(self);
+						if (self.getLocation().distance(pair.getLocation()) <= self.getRange()+pair.getRange())
+						{
+							self.addNeighbour(pair);
+							pair.addNeighbour(self);
+						}
+						else
+						{
+							self.removeNeighbour(pair);
+						}
 					}
+					//realistic radio
 					else
 					{
-						self.removeNeighbour(pair);
+						if (self.getLocation().distance(pair.getLocation()) <= self.getRange())
+						{
+							self.addNeighbour(pair);
+						}
+						else
+						{
+							self.removeNeighbour(pair);
+						}
 					}
 				}
 			}

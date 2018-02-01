@@ -40,8 +40,8 @@ public class NodeCanvas extends JPanel
 	
 	
 	//declaring local instance variables
-	private boolean showSignalWells;
-	private boolean showMeshLines;
+	private boolean showWellsOnNode, showWellsOnAll;
+	private boolean showMeshOnNode, showMeshOnAll;
 	private boolean showNodeIds;
 	private boolean showDistances;
 	private boolean showIdealRouting;
@@ -53,8 +53,10 @@ public class NodeCanvas extends JPanel
 	public NodeCanvas(HashSet<LowpanNode> nodes)
 	{
 		super();
-		showSignalWells = false;
-		showMeshLines = true;
+		showWellsOnNode = false;
+		showWellsOnAll = false;
+		showMeshOnNode = false;
+		showMeshOnAll = true;
 		showNodeIds = true;
 		showDistances = false;
 		showIdealRouting = false;
@@ -67,13 +69,15 @@ public class NodeCanvas extends JPanel
 	
 	
 	//generic setters
-	public void setSignalWells(boolean flag)
+	public void setSignalWells(boolean node, boolean all)
 	{
-		showSignalWells = flag;
+		this.showWellsOnNode = (node && !all);
+		this.showWellsOnAll = all; 
 	}
-	public void setMeshLines(boolean flag)
+	public void setMeshLines(boolean node, boolean all)
 	{
-		showMeshLines = flag;
+		this.showMeshOnNode = (node && !all);
+		this.showWellsOnAll = all;
 	}
 	public void setDistances(boolean flag)
 	{

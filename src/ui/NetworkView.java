@@ -41,6 +41,7 @@ import java.awt.Dimension;
 import ctrl.LowpanSim;
 import datatype.LowpanNode;
 import javax.swing.JComboBox;
+import javax.swing.JRadioButton;
 
 
 
@@ -52,6 +53,10 @@ public class NetworkView extends JFrame implements ActionListener
 	public static final String BTN_REMOVE = "btn/remove";
 	public static final String BTN_REMOVE_ALL = "btn/removeall";
 	public static final String BTN_NEW_NODE = "btn/newnode";
+	public static final String RADIO_MESH_ACTIVE = "rdo/mesh/active";
+	public static final String RADIO_MESH_ALL = "rdo/mesh/all";
+	public static final String RADIO_WELL_ACTIVE = "rdo/wells/active";
+	public static final String RADIO_WELL_ALL = "rdo/wells/all";
 	
 	private static final int DEFAULT_WINDOW_X = 1301;
 	private static final int DEFAULT_WINDOW_Y = 698;
@@ -64,25 +69,25 @@ public class NetworkView extends JFrame implements ActionListener
 	
 	//declaring local instance variables
 	private HashSet<LowpanNode> nodes;
-	private JTextArea log;
+	private LowpanNode activeNode;
 	private NodeCanvas canvasPane;
-	private JTextArea nodeInfoText;
+	
 	private JTextField nameField;
 	private JTextField rangeField;
 	private JTextField xField;
 	private JTextField yField;
-	private JCheckBox toggleMesh, toggleSignalWells, toggleLabels, toggleDistance;
-	
-	//declaring local instance variables
-	LowpanNode activeNode;
+	private JCheckBox toggleMesh, toggleLabels;
 	private JTextField labelID;
 	private JTextField sourceLabel;
 	private JTextField destLabel;
 	private JComboBox<LowpanNode> sourceSelector;
 	private JComboBox<LowpanNode> destinationSelector;
+	private JComboBox<LowpanNode> rootNodeSelector;
+	private JRadioButton radioMeshActiveNode, radioMeshAllNode;
+	private JRadioButton radioWellsActiveNode, radioWellsAllNode;
 	private JCheckBox rplRoutingToggle;
 	private JCheckBox idealRoutingToggle;
-	private JComboBox<LowpanNode> rootNodeSelector;
+	private JTextField labelRadioType;
 	
 	//generic constructor
 	public NetworkView(String title, HashSet<LowpanNode> nodes, MouseListener mouseListener, ActionListener actionListener, KeyListener keyListener)
@@ -229,55 +234,83 @@ public class NetworkView extends JFrame implements ActionListener
 		//add button to add new nodes
 		JButton btnNewNode = new JButton("New Node");
 		btnNewNode.setActionCommand(BTN_NEW_NODE);;
-		btnNewNode.setBounds(10, 167, 120, 23);
+		btnNewNode.setBounds(10, 11, 120, 23);
 		btnNewNode.addActionListener(actionListener);
 		auxSubPanel.add(btnNewNode);
 		
 		//add button to clear nodes
 		JButton btnClearNodes = new JButton("Clear All Nodes");
 		btnClearNodes.setActionCommand(BTN_REMOVE_ALL);
-		btnClearNodes.setBounds(143, 167, 120, 23);
+		btnClearNodes.setBounds(147, 11, 120, 23);
 		btnClearNodes.addActionListener(actionListener);
 		auxSubPanel.add(btnClearNodes);
+		
+		//add signal well options
+		JTextField labelSignalWells = new JTextField();
+		labelSignalWells.setText("Draw Signal Wells:");
+		labelSignalWells.setBounds(10, 45, 120, 23);
+		labelSignalWells.setColumns(10);
+		labelSignalWells.setEditable(false);
+		labelSignalWells.setBorder(null);
+		auxSubPanel.add(labelSignalWells);
+		
+		radioWellsActiveNode = new JRadioButton("Active Node Only");
+		radioWellsActiveNode.setBounds(147, 45, 120, 23);
+		radioWellsActiveNode.addActionListener(this);
+		auxSubPanel.add(radioWellsActiveNode);
+		
+		radioWellsAllNode = new JRadioButton("All Nodes");
+		radioWellsAllNode.setBounds(147, 70, 120, 23);
+		auxSubPanel.add(radioWellsAllNode);
+		
+		//add mesh edge options
+		JTextField labelMeshEdges = new JTextField();
+		labelMeshEdges.setText("Draw Mesh Edges:");
+		labelMeshEdges.setBounds(10, 104, 120, 23);
+		labelMeshEdges.setColumns(10);
+		labelMeshEdges.setEditable(false);
+		labelMeshEdges.setBorder(null);
+		auxSubPanel.add(labelMeshEdges);
+		
+		radioMeshActiveNode = new JRadioButton("Active Node Only");
+		radioMeshActiveNode.setBounds(147, 104, 120, 23);
+		auxSubPanel.add(radioMeshActiveNode);
+		
+		radioMeshAllNode = new JRadioButton("All Nodes");
+		radioMeshAllNode.setBounds(147, 130, 120, 23);
+		auxSubPanel.add(radioMeshAllNode);
+		
+		
+		
 		
 		//add checkboxes for mesh display settings
 		toggleMesh = new JCheckBox("Mesh Edges");
 		toggleMesh.setSelected(true);
-		toggleMesh.setBounds(147, 223, 120, 23);
+		toggleMesh.setBounds(158, 223, 109, 23);
 		toggleMesh.addActionListener(this);
 		auxSubPanel.add(toggleMesh);
 		
-		toggleSignalWells = new JCheckBox("Signal Wells");
-		toggleSignalWells.setSelected(false);
-		toggleSignalWells.setBounds(10, 223, 120, 23);
-		toggleSignalWells.addActionListener(this);
-		auxSubPanel.add(toggleSignalWells);
-		
 		toggleLabels = new JCheckBox("Node Labels");
 		toggleLabels.setSelected(true);
-		toggleLabels.setBounds(10, 197, 120, 23);
+		toggleLabels.setBounds(10, 223, 109, 23);
 		toggleLabels.addActionListener(this);
 		auxSubPanel.add(toggleLabels);
 		
-		toggleDistance = new JCheckBox("Edge Labels");
-		toggleDistance.setSelected(false);
-		toggleDistance.setBounds(147, 197, 120, 23);
-		toggleDistance.addActionListener(this);
-		auxSubPanel.add(toggleDistance);
+		JRadioButton radioRadioB = new JRadioButton("\"Realistic\" Radio B");
+		radioRadioB.setBounds(147, 182, 120, 23);
+		auxSubPanel.add(radioRadioB);
 		
-		//add text for connection print in scroll
-		JScrollPane connectionScrollPane = new JScrollPane();
-		connectionScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		connectionScrollPane.setBounds(10, 11, 253, 145);
-		connectionScrollPane.setBorder(null);
-		nodeInfoText = new JTextArea();
-		nodeInfoText.setBounds(10, 153, 253, 3);
-		nodeInfoText.setFont(CONNECTION_DISPLAY_FONT);
-		nodeInfoText.setEditable(false);
-		nodeInfoText.setWrapStyleWord(true);
-		nodeInfoText.setBackground(nodePanel.getBackground());
-		connectionScrollPane.setViewportView(nodeInfoText);
-		auxSubPanel.add(connectionScrollPane);
+		JRadioButton radioRadioA = new JRadioButton("\"EasySim\" Radio A");
+		radioRadioA.setBounds(147, 156, 120, 23);
+		auxSubPanel.add(radioRadioA);
+		
+		labelRadioType = new JTextField();
+		labelRadioType.setText("Radio Type:");
+		labelRadioType.setEditable(false);
+		labelRadioType.setColumns(10);
+		labelRadioType.setBorder(null);
+		labelRadioType.setBounds(10, 156, 120, 23);
+		auxSubPanel.add(labelRadioType);
 
 		//add text log to aux panel
 		JPanel routingPanel = new JPanel();
@@ -331,7 +364,7 @@ public class NetworkView extends JFrame implements ActionListener
 		idealRoutingToggle.addActionListener(this);
 		routingPanel.add(idealRoutingToggle);
 		
-		//add label fro DODAG select 
+		//add label for DODAG select 
 		JTextField dodagNodeLabel = new JTextField();
 		dodagNodeLabel.setText("DODAG:");
 		dodagNodeLabel.setEditable(false);
@@ -379,14 +412,6 @@ public class NetworkView extends JFrame implements ActionListener
 			rangeField.setText(""+activeNode.getRange());
 			xField.setText(""+activeNode.getLocation().x);
 			yField.setText(""+activeNode.getLocation().y);
-			
-			//set connections
-			String s = "";
-			for (LowpanNode node : activeNode.getNeighbours())
-			{
-				s += "n" + activeNode.getId() + " ---> n" + node.getId() + " \"" + node.getName() + "\"\n";
-			}
-			nodeInfoText.setText(s);
 		}
 		else
 		{
@@ -396,7 +421,6 @@ public class NetworkView extends JFrame implements ActionListener
 			rangeField.setText("");
 			xField.setText("");
 			yField.setText("");
-			nodeInfoText.setText("");
 		}
 	}
 	
