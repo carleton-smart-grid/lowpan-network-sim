@@ -22,6 +22,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 import java.util.HashSet;
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -53,10 +54,7 @@ public class NetworkView extends JFrame implements ActionListener
 	public static final String BTN_REMOVE = "btn/remove";
 	public static final String BTN_REMOVE_ALL = "btn/removeall";
 	public static final String BTN_NEW_NODE = "btn/newnode";
-	public static final String RADIO_MESH_ACTIVE = "rdo/mesh/active";
-	public static final String RADIO_MESH_ALL = "rdo/mesh/all";
-	public static final String RADIO_WELL_ACTIVE = "rdo/wells/active";
-	public static final String RADIO_WELL_ALL = "rdo/wells/all";
+	public static final String RADIO_TYPE = "btn/radio";
 	
 	private static final int DEFAULT_WINDOW_X = 1301;
 	private static final int DEFAULT_WINDOW_Y = 698;
@@ -76,7 +74,7 @@ public class NetworkView extends JFrame implements ActionListener
 	private JTextField rangeField;
 	private JTextField xField;
 	private JTextField yField;
-	private JCheckBox toggleMesh, toggleLabels;
+	private JCheckBox toggleDistances, toggleLabels;
 	private JTextField labelID;
 	private JTextField sourceLabel;
 	private JTextField destLabel;
@@ -246,6 +244,7 @@ public class NetworkView extends JFrame implements ActionListener
 		auxSubPanel.add(btnClearNodes);
 		
 		//add signal well options
+		ButtonGroup signalWells = new ButtonGroup();
 		JTextField labelSignalWells = new JTextField();
 		labelSignalWells.setText("Draw Signal Wells:");
 		labelSignalWells.setBounds(10, 45, 120, 23);
@@ -257,13 +256,17 @@ public class NetworkView extends JFrame implements ActionListener
 		radioWellsActiveNode = new JRadioButton("Active Node Only");
 		radioWellsActiveNode.setBounds(147, 45, 120, 23);
 		radioWellsActiveNode.addActionListener(this);
+		signalWells.add(radioWellsActiveNode);
 		auxSubPanel.add(radioWellsActiveNode);
 		
 		radioWellsAllNode = new JRadioButton("All Nodes");
 		radioWellsAllNode.setBounds(147, 70, 120, 23);
+		radioWellsAllNode.addActionListener(this);
+		signalWells.add(radioWellsAllNode);
 		auxSubPanel.add(radioWellsAllNode);
 		
 		//add mesh edge options
+		ButtonGroup meshEdges = new ButtonGroup();
 		JTextField labelMeshEdges = new JTextField();
 		labelMeshEdges.setText("Draw Mesh Edges:");
 		labelMeshEdges.setBounds(10, 104, 120, 23);
@@ -274,36 +277,18 @@ public class NetworkView extends JFrame implements ActionListener
 		
 		radioMeshActiveNode = new JRadioButton("Active Node Only");
 		radioMeshActiveNode.setBounds(147, 104, 120, 23);
+		radioMeshActiveNode.addActionListener(this);
+		meshEdges.add(radioMeshActiveNode);
 		auxSubPanel.add(radioMeshActiveNode);
 		
 		radioMeshAllNode = new JRadioButton("All Nodes");
 		radioMeshAllNode.setBounds(147, 130, 120, 23);
+		radioMeshAllNode.addActionListener(this);
+		meshEdges.add(radioMeshAllNode);
 		auxSubPanel.add(radioMeshAllNode);
 		
-		
-		
-		
-		//add checkboxes for mesh display settings
-		toggleMesh = new JCheckBox("Mesh Edges");
-		toggleMesh.setSelected(true);
-		toggleMesh.setBounds(158, 223, 109, 23);
-		toggleMesh.addActionListener(this);
-		auxSubPanel.add(toggleMesh);
-		
-		toggleLabels = new JCheckBox("Node Labels");
-		toggleLabels.setSelected(true);
-		toggleLabels.setBounds(10, 223, 109, 23);
-		toggleLabels.addActionListener(this);
-		auxSubPanel.add(toggleLabels);
-		
-		JRadioButton radioRadioB = new JRadioButton("\"Realistic\" Radio B");
-		radioRadioB.setBounds(147, 182, 120, 23);
-		auxSubPanel.add(radioRadioB);
-		
-		JRadioButton radioRadioA = new JRadioButton("\"EasySim\" Radio A");
-		radioRadioA.setBounds(147, 156, 120, 23);
-		auxSubPanel.add(radioRadioA);
-		
+		//add radio types
+		ButtonGroup radioButtons = new ButtonGroup();
 		labelRadioType = new JTextField();
 		labelRadioType.setText("Radio Type:");
 		labelRadioType.setEditable(false);
@@ -311,6 +296,31 @@ public class NetworkView extends JFrame implements ActionListener
 		labelRadioType.setBorder(null);
 		labelRadioType.setBounds(10, 156, 120, 23);
 		auxSubPanel.add(labelRadioType);
+		
+		JRadioButton radioRadioB = new JRadioButton("\"Realistic\" Radio B");
+		radioRadioB.setBounds(147, 182, 120, 23);
+		radioRadioB.addActionListener(actionListener);
+		radioButtons.add(radioRadioB);
+		auxSubPanel.add(radioRadioB);
+		
+		JRadioButton radioRadioA = new JRadioButton("\"EasySim\" Radio A");
+		radioRadioA.setBounds(147, 156, 120, 23);
+		radioRadioA.addActionListener(actionListener);
+		radioButtons.add(radioRadioA);
+		auxSubPanel.add(radioRadioA);
+		
+		//add checkboxes for mesh display settings
+		toggleDistances = new JCheckBox("Edge Labels");
+		toggleDistances.setSelected(false);
+		toggleDistances.setBounds(158, 223, 109, 23);
+		toggleDistances.addActionListener(this);
+		auxSubPanel.add(toggleDistances);
+		
+		toggleLabels = new JCheckBox("Node Labels");
+		toggleLabels.setSelected(true);
+		toggleLabels.setBounds(10, 223, 109, 23);
+		toggleLabels.addActionListener(this);
+		auxSubPanel.add(toggleLabels);
 
 		//add text log to aux panel
 		JPanel routingPanel = new JPanel();
@@ -397,7 +407,9 @@ public class NetworkView extends JFrame implements ActionListener
 	{
 		//update active node
 		activeNode = node;
+		canvasPane.setActiveNode(node);
 		updateNodeDisplay();
+		this.update();
 	}
 	
 	
@@ -503,7 +515,7 @@ public class NetworkView extends JFrame implements ActionListener
 	public void actionPerformed(ActionEvent arg0) 
 	{
 		//set enable for edge distances and rpl root node selector
-		toggleDistance.setEnabled(toggleMesh.isSelected());	
+		toggleDistances.setEnabled(radioMeshActiveNode.isSelected() || radioMeshAllNode.isSelected());	
 		rootNodeSelector.setEnabled(rplRoutingToggle.isSelected());
 		
 		//set enable for routing selectors
@@ -516,11 +528,11 @@ public class NetworkView extends JFrame implements ActionListener
 									(LowpanNode)destinationSelector.getSelectedItem(),
 									(LowpanNode)rootNodeSelector.getSelectedItem());
 		
-		//set flags
-		canvasPane.setMeshLines(toggleMesh.isSelected());
-		canvasPane.setSignalWells(toggleSignalWells.isSelected());
+		//set flags in node canvas
+		canvasPane.setSignalWells(radioWellsActiveNode.isSelected(), radioWellsAllNode.isSelected());
+		canvasPane.setMeshLines(radioMeshActiveNode.isSelected(), radioMeshAllNode.isSelected());
+		canvasPane.setDistances(toggleDistances.isSelected());
 		canvasPane.setNodeIds(toggleLabels.isSelected());
-		canvasPane.setDistances(toggleDistance.isSelected());
 		canvasPane.setIdealRouting(idealRoutingToggle.isSelected());
 		canvasPane.setRplRouting(rplRoutingToggle.isSelected());
 		this.update();

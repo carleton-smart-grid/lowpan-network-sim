@@ -40,6 +40,7 @@ public class NodeCanvas extends JPanel
 	
 	
 	//declaring local instance variables
+	private LowpanNode activeNode;
 	private boolean showWellsOnNode, showWellsOnAll;
 	private boolean showMeshOnNode, showMeshOnAll;
 	private boolean showNodeIds;
@@ -53,6 +54,7 @@ public class NodeCanvas extends JPanel
 	public NodeCanvas(HashSet<LowpanNode> nodes)
 	{
 		super();
+		activeNode = null;
 		showWellsOnNode = false;
 		showWellsOnAll = false;
 		showMeshOnNode = false;
@@ -69,6 +71,10 @@ public class NodeCanvas extends JPanel
 	
 	
 	//generic setters
+	public void setActiveNode(LowpanNode node)
+	{
+		this.activeNode = node;
+	}
 	public void setSignalWells(boolean node, boolean all)
 	{
 		this.showWellsOnNode = (node && !all);
@@ -109,7 +115,27 @@ public class NodeCanvas extends JPanel
 		super.paint(g);
 
 		//draw all mesh edges as layer 1
-		if (showMeshLines)
+		if (showMeshOnNode && activeNode != null)
+		{
+			for (LowpanNode neighbour : activeNode.getNeighbours())
+			{
+				//draw edge
+				g.setColor(Color.GREEN);
+				g.drawLine(activeNode.getLocation().x, activeNode.getLocation().y, neighbour.getLocation().x, neighbour.getLocation().y);
+			
+				//label edge
+				if(showDistances)
+				{
+					g.setColor(Color.BLACK);
+					
+					String dist = String.format("%.02f", activeNode.getLocation().distance(neighbour.getLocation()));
+					int x = ((activeNode.getLocation().x + neighbour.getLocation().x) / 2) + 10;
+					int y = ((activeNode.getLocation().y + neighbour.getLocation().y) / 2) + 10;
+					g.drawString(dist, x, y);
+				}
+			}
+		}
+		else if (showMeshOnAll)
 		{
 			for (LowpanNode node : nodes)
 			{
@@ -132,6 +158,7 @@ public class NodeCanvas extends JPanel
 				}
 			}
 		}
+		
 		
 		//draw all routing as layer 2
 		if ((src != null && dest != null))
@@ -221,7 +248,7 @@ public class NodeCanvas extends JPanel
 			g.fillOval(centroidX, centroidY, NODE_DIAMETER, NODE_DIAMETER);
 			
 			//draw signal well
-			if (showSignalWells)
+			if ( true /* TODO FIX showSignalWells*/)
 			{
 				int wellDiameter = 2*node.getRange();
 				int wellCentroidX = loc.x - wellDiameter/2;
