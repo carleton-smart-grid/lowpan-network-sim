@@ -83,7 +83,7 @@ public class NodeCanvas extends JPanel
 	public void setMeshLines(boolean node, boolean all)
 	{
 		this.showMeshOnNode = (node && !all);
-		this.showWellsOnAll = all;
+		this.showMeshOnAll = all;
 	}
 	public void setDistances(boolean flag)
 	{
@@ -232,12 +232,9 @@ public class NodeCanvas extends JPanel
 			
 			g2d.setStroke(reset);
 		}
-		else
-		{
-			System.out.println("NULL");
-		}
 		
-		//draw all nodes and wells as layer 3
+		
+		//draw all nodes, wells, and labels on layer 3
 		for (LowpanNode node : nodes)
 		{
 			//draw node
@@ -247,8 +244,10 @@ public class NodeCanvas extends JPanel
 			g.setColor(Color.BLACK);
 			g.fillOval(centroidX, centroidY, NODE_DIAMETER, NODE_DIAMETER);
 			
-			//draw signal well
-			if ( true /* TODO FIX showSignalWells*/)
+			//draw well if needed
+			System.out.println("Well @ All:  " + showWellsOnAll);
+			System.out.println("Well @ Node: " + showWellsOnNode + "\n");
+			if ((showWellsOnNode && node == activeNode) || showWellsOnAll)
 			{
 				int wellDiameter = 2*node.getRange();
 				int wellCentroidX = loc.x - wellDiameter/2;
@@ -258,7 +257,7 @@ public class NodeCanvas extends JPanel
 				g.drawOval(wellCentroidX, wellCentroidY, wellDiameter, wellDiameter);
 			}
 			
-			//label node
+			//draw node label
 			if (showNodeIds)
 			{
 				String id = ""+node.getId();
