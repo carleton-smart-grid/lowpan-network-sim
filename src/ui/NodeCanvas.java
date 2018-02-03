@@ -83,7 +83,7 @@ public class NodeCanvas extends JPanel
 	public void setMeshLines(boolean node, boolean all)
 	{
 		this.showMeshOnNode = (node && !all);
-		this.showWellsOnAll = all;
+		this.showMeshOnAll = all;
 	}
 	public void setDistances(boolean flag)
 	{
@@ -232,25 +232,24 @@ public class NodeCanvas extends JPanel
 			
 			g2d.setStroke(reset);
 		}
-		else
-		{
-			System.out.println("NULL");
-		}
 		
-		//draw all nodes and wells as layer 3
-		if (showWellsOnNode && activeNode != null)
+		
+		//draw all nodes, wells, and labels on layer 3
+		for (LowpanNode node : nodes)
 		{
 			//draw node
-			Point loc = activeNode.getLocation();
+			Point loc = node.getLocation();
 			int centroidX = loc.x - NODE_DIAMETER/2;
 			int centroidY = loc.y - NODE_DIAMETER/2;
 			g.setColor(Color.BLACK);
 			g.fillOval(centroidX, centroidY, NODE_DIAMETER, NODE_DIAMETER);
 			
-			//draw signal well
-			if ( true /* TODO FIX showSignalWells*/)
+			//draw well if needed
+			System.out.println("Well @ All:  " + showWellsOnAll);
+			System.out.println("Well @ Node: " + showWellsOnNode + "\n");
+			if ((showWellsOnNode && node == activeNode) || showWellsOnAll)
 			{
-				int wellDiameter = 2*activeNode.getRange();
+				int wellDiameter = 2*node.getRange();
 				int wellCentroidX = loc.x - wellDiameter/2;
 				int wellCentroidY = loc.y - wellDiameter/2;
 				
@@ -258,45 +257,13 @@ public class NodeCanvas extends JPanel
 				g.drawOval(wellCentroidX, wellCentroidY, wellDiameter, wellDiameter);
 			}
 			
-			//label node
+			//draw node label
 			if (showNodeIds)
 			{
-				String id = ""+activeNode.getId();
+				String id = ""+node.getId();
 				int charOffset = id.length()*4;
 				g.setColor(Color.BLACK);
 				g.drawString(id, loc.x-charOffset, loc.y+NODE_DIAMETER);
-			}
-		}
-		else if (showWellsOnAll)
-		{
-			for (LowpanNode node : nodes)
-			{
-				//draw node
-				Point loc = node.getLocation();
-				int centroidX = loc.x - NODE_DIAMETER/2;
-				int centroidY = loc.y - NODE_DIAMETER/2;
-				g.setColor(Color.BLACK);
-				g.fillOval(centroidX, centroidY, NODE_DIAMETER, NODE_DIAMETER);
-				
-				//draw signal well
-				if ( true /* TODO FIX showSignalWells*/)
-				{
-					int wellDiameter = 2*node.getRange();
-					int wellCentroidX = loc.x - wellDiameter/2;
-					int wellCentroidY = loc.y - wellDiameter/2;
-					
-					g.setColor(Color.RED);
-					g.drawOval(wellCentroidX, wellCentroidY, wellDiameter, wellDiameter);
-				}
-				
-				//label node
-				if (showNodeIds)
-				{
-					String id = ""+node.getId();
-					int charOffset = id.length()*4;
-					g.setColor(Color.BLACK);
-					g.drawString(id, loc.x-charOffset, loc.y+NODE_DIAMETER);
-				}
 			}
 		}
 	}

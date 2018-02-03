@@ -54,7 +54,8 @@ public class NetworkView extends JFrame implements ActionListener
 	public static final String BTN_REMOVE = "btn/remove";
 	public static final String BTN_REMOVE_ALL = "btn/removeall";
 	public static final String BTN_NEW_NODE = "btn/newnode";
-	public static final String RADIO_TYPE = "btn/radio";
+	public static final String RADIO_TYPE_A = "btn/radioA";
+	public static final String RADIO_TYPE_B = "btn/radioB";
 	
 	private static final int DEFAULT_WINDOW_X = 1301;
 	private static final int DEFAULT_WINDOW_Y = 698;
@@ -254,13 +255,13 @@ public class NetworkView extends JFrame implements ActionListener
 		auxSubPanel.add(labelSignalWells);
 		
 		radioWellsActiveNode = new JRadioButton("Active Node Only");
-		radioWellsActiveNode.setBounds(147, 45, 120, 23);
+		radioWellsActiveNode.setBounds(137, 45, 130, 23);
 		radioWellsActiveNode.addActionListener(this);
 		signalWells.add(radioWellsActiveNode);
 		auxSubPanel.add(radioWellsActiveNode);
 		
 		radioWellsAllNode = new JRadioButton("All Nodes");
-		radioWellsAllNode.setBounds(147, 70, 120, 23);
+		radioWellsAllNode.setBounds(137, 70, 130, 23);
 		radioWellsAllNode.addActionListener(this);
 		signalWells.add(radioWellsAllNode);
 		auxSubPanel.add(radioWellsAllNode);
@@ -276,14 +277,15 @@ public class NetworkView extends JFrame implements ActionListener
 		auxSubPanel.add(labelMeshEdges);
 		
 		radioMeshActiveNode = new JRadioButton("Active Node Only");
-		radioMeshActiveNode.setBounds(147, 104, 120, 23);
+		radioMeshActiveNode.setBounds(137, 104, 130, 23);
 		radioMeshActiveNode.addActionListener(this);
 		meshEdges.add(radioMeshActiveNode);
 		auxSubPanel.add(radioMeshActiveNode);
 		
 		radioMeshAllNode = new JRadioButton("All Nodes");
-		radioMeshAllNode.setBounds(147, 130, 120, 23);
+		radioMeshAllNode.setBounds(137, 130, 130, 23);
 		radioMeshAllNode.addActionListener(this);
+		radioMeshAllNode.setSelected(true);
 		meshEdges.add(radioMeshAllNode);
 		auxSubPanel.add(radioMeshAllNode);
 		
@@ -298,14 +300,17 @@ public class NetworkView extends JFrame implements ActionListener
 		auxSubPanel.add(labelRadioType);
 		
 		JRadioButton radioRadioB = new JRadioButton("\"Realistic\" Radio B");
-		radioRadioB.setBounds(147, 182, 120, 23);
+		radioRadioB.setBounds(137, 182, 130, 23);
+		radioRadioB.setActionCommand(RADIO_TYPE_B);
 		radioRadioB.addActionListener(actionListener);
 		radioButtons.add(radioRadioB);
 		auxSubPanel.add(radioRadioB);
 		
 		JRadioButton radioRadioA = new JRadioButton("\"EasySim\" Radio A");
-		radioRadioA.setBounds(147, 156, 120, 23);
+		radioRadioA.setBounds(137, 156, 130, 23);
+		radioRadioA.setActionCommand(RADIO_TYPE_A);
 		radioRadioA.addActionListener(actionListener);
+		radioRadioA.setSelected(true);
 		radioButtons.add(radioRadioA);
 		auxSubPanel.add(radioRadioA);
 		
@@ -392,8 +397,8 @@ public class NetworkView extends JFrame implements ActionListener
 		//set visible
 		this.setVisible(true);
 	}
-
 	
+
 	//hacky solution to use key listeners
 	public void enabledKeyInput()
 	{

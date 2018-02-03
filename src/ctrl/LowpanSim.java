@@ -115,9 +115,17 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 		String cmd = ae.getActionCommand();
 
 		//source is altering radio type
-		if (cmd.equals(NetworkView.RADIO_TYPE))
+		if (cmd.equals(NetworkView.RADIO_TYPE_A))
 		{
-			
+			radioType = true;
+			this.computePaths();
+			ui.update();
+		}
+		else if (cmd.equals(NetworkView.RADIO_TYPE_B))
+		{
+			radioType = false;
+			this.computePaths();
+			ui.update();
 		}
 		//source is alternating node information
 		else
