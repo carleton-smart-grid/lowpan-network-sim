@@ -49,6 +49,7 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 	private HashSet<LowpanNode> nodes;
 	private IdDispatcher dispatch;
 	private NetworkView ui;
+	private boolean radioType;		// T => easy || F => real
 	
 	
 	//generic constructor
@@ -59,6 +60,7 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 		dispatch = new IdDispatcher();
 		ui = new NetworkView(WINDOW_NAME, nodes, this, this, this);
 		ui.enabledKeyInput();
+		radioType = true;
 	}
 	
 	
@@ -110,62 +112,80 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 	{
 		//get active node
 		LowpanNode activeNode = ui.getActiveNode();
+		String cmd = ae.getActionCommand();
 
-		//determine source
-		if (activeNode != null)
+		//source is altering radio type
+		if (cmd.equals(NetworkView.RADIO_TYPE_A))
 		{
-			switch(ae.getActionCommand())
-			{
-				//remove active node
-				case (NetworkView.BTN_REMOVE):
-					this.removeNode(activeNode);
-					ui.setActiveNode(null);
-					break;
-
-				//update active node
-				case (NetworkView.BTN_UPDATE):
-					//get inputs
-					String name = ui.getInputName();
-					Integer range = ui.getInputRange();
-					Integer x = ui.getInputX();
-					Integer y = ui.getInputY();
-					
-					//validate inputs
-					if (name == null || name.isEmpty())
-					{
-						break;
-					}
-					else if (range == null || x == null || y == null)
-					{
-						break;
-					}
-					else
-					{
-						//update node 
-						activeNode.setLocation(x, y);
-						activeNode.setName(name);
-						activeNode.setRange(range);
-						
-						//update ui
-						ui.setActiveNode(activeNode);
-					}
-					break;
-					
-				//add new node
-				case (NetworkView.BTN_NEW_NODE):
-					this.addNode(DEFAULT_NAME, DEFAULT_RANGE, MAX_X/2, MAX_Y/2);
-					break;
-				
-				//remove all nodes
-				case (NetworkView.BTN_REMOVE_ALL):
-					this.removeAllNodes();
-					dispatch.reset();
-					break;
-			}
-			
-			//update mesh and routing selectors
-			ui.updateRoutingSelectors(nodes);
+			radioType = true;
+			this.computePaths();
 			ui.update();
+		}
+		else if (cmd.equals(NetworkView.RADIO_TYPE_B))
+		{
+			radioType = false;
+			this.computePaths();
+			ui.update();
+		}
+		//source is alternating node information
+		else
+		{
+			if (activeNode != null)
+			{
+				switch(ae.getActionCommand())
+				{
+					//remove active node
+					case (NetworkView.BTN_REMOVE):
+						this.removeNode(activeNode);
+						ui.setActiveNode(null);
+						break;
+	
+					//update active node
+					case (NetworkView.BTN_UPDATE):
+						//get inputs
+						String name = ui.getInputName();
+						Integer range = ui.getInputRange();
+						Integer x = ui.getInputX();
+						Integer y = ui.getInputY();
+						
+						//validate inputs
+						if (name == null || name.isEmpty())
+						{
+							break;
+						}
+						else if (range == null || x == null || y == null)
+						{
+							break;
+						}
+						else
+						{
+							//update node 
+							activeNode.setLocation(x, y);
+							activeNode.setName(name);
+							activeNode.setRange(range);
+							
+							//update ui
+							ui.setActiveNode(activeNode);
+						}
+						break;
+						
+					//add new node
+					case (NetworkView.BTN_NEW_NODE):
+						this.addNode(DEFAULT_NAME, DEFAULT_RANGE, MAX_X/2, MAX_Y/2);
+						break;
+					
+					//remove all nodes
+					case (NetworkView.BTN_REMOVE_ALL):
+						this.removeAllNodes();
+						dispatch.reset();
+						break;
+				}
+				
+				
+				//update mesh and routing selectors
+				ui.updateRoutingSelectors(nodes);
+				ui.update();
+			}
 		}
 	}
 	
@@ -272,14 +292,33 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 			{
 				if (!self.equals(pair))
 				{
-					if ( self.getLocation().distance(pair.getLocation()) <= self.getRange()+pair.getRange())
+					//simple radio
+					if (radioType)
 					{
-						self.addNeighbour(pair);
-						pair.addNeighbour(self);
+						if (self.getLocation().distance(pair.getLocation()) <= self.getRange()+pair.getRange())
+						{
+							self.addNeighbour(pair);
+							pair.addNeighbour(self);
+						}
+						else
+						{
+							self.removeNeighbour(pair);
+						}
 					}
+					//realistic radio
 					else
 					{
-						self.removeNeighbour(pair);
+						double d = self.getLocation().distance(pair.getLocation());
+						
+						if (d <= self.getRange() && d <= pair.getRange())
+						{
+							self.addNeighbour(pair);
+							pair.addNeighbour(self);
+						}
+						else
+						{
+							self.removeNeighbour(pair);
+						}
 					}
 				}
 			}
