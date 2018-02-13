@@ -286,39 +286,40 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 	//compute all node paths
 	public void computePaths()
 	{
+		/*
+		 * TODO
+		 * Lines 304-310 are always called twice (self adds pair, pair adds self) x2
+		 * with self and pair being swapped between calls
+		 * 
+		 * While the LowpanNode data-type prevents redundant neighbors and guards against
+		 * non-applicable removals, this is still unnecessary function calls.
+		 * 
+		 * Would be good to write a more elegant algorithm as opposed to the brute-force
+		 * "compare all in N to all others in N" algorithm currently implemented
+		 */
+		
+		//iterate for all nodes in manifest
 		for (LowpanNode self : nodes)
 		{
+			//iterate for all nodes in manifest
 			for (LowpanNode pair : nodes)
 			{
+				//compare all nodes to all other nodes that are not itself
 				if (!self.equals(pair))
 				{
-					//simple radio
-					if (radioType)
+					//check if radio-well intersection for easy radio
+					//check for radio-well containing node for realistic radio
+					double d = self.getLocation().distance(pair.getLocation());
+					if ( (radioType && (self.getLocation().distance(pair.getLocation()) <= self.getRange()+pair.getRange()))
+						|| (!radioType && (d <= self.getRange() && d <= pair.getRange())) )
 					{
-						if (self.getLocation().distance(pair.getLocation()) <= self.getRange()+pair.getRange())
-						{
-							self.addNeighbour(pair);
-							pair.addNeighbour(self);
-						}
-						else
-						{
-							self.removeNeighbour(pair);
-						}
+						self.addNeighbour(pair);
+						pair.addNeighbour(self);
 					}
-					//realistic radio
 					else
 					{
-						double d = self.getLocation().distance(pair.getLocation());
-						
-						if (d <= self.getRange() && d <= pair.getRange())
-						{
-							self.addNeighbour(pair);
-							pair.addNeighbour(self);
-						}
-						else
-						{
-							self.removeNeighbour(pair);
-						}
+						self.removeNeighbour(pair);
+						pair.removeNeighbour(self);
 					}
 				}
 			}
