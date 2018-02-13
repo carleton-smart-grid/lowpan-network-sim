@@ -2,7 +2,7 @@
  * Class:				LowpanSim.java
  * Project:				Lowpan Network Sim
  * Author:				Jason Van Kerkhoven
- * Date of Update:		25/11/2017
+ * Date of Update:		12/02/2017
  * Version:				1.0.0
  * 
  * Purpose:				Draw a lowpan mesh network using intuitive user controls.

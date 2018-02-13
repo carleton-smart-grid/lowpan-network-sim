@@ -2,7 +2,7 @@
  * Class:				NodeCanvas.java
  * Project:				Lowpan Network Sim
  * Author:				Jason Van Kerkhoven
- * Date of Update:		25/11/2017
+ * Date of Update:		12/02/2017
  * Version:				1.0.0
  * 
  * Purpose:				Draw a system of nodes, including signal wells and mesh links.
@@ -12,21 +12,19 @@
  */
 package ui;
 
+
+//import libraries
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Stroke;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-
-import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
+//link packages
 import ctrl.LowpanSim;
 import datatype.LowpanNode;
 
@@ -54,8 +52,9 @@ public class NodeCanvas extends JPanel
 	public NodeCanvas(HashSet<LowpanNode> nodes)
 	{
 		super();
-		activeNode = null;
-		showWellsOnNode = false;
+		
+		//initialize the flags
+		showWellsOnNode = true;
 		showWellsOnAll = false;
 		showMeshOnNode = false;
 		showMeshOnAll = true;
@@ -63,6 +62,9 @@ public class NodeCanvas extends JPanel
 		showDistances = false;
 		showIdealRouting = false;
 		showRplRouting = false;
+		
+		//initialize other values
+		activeNode = null;
 		src = null;
 		dest = null;
 		dodag = null;
@@ -245,8 +247,6 @@ public class NodeCanvas extends JPanel
 			g.fillOval(centroidX, centroidY, NODE_DIAMETER, NODE_DIAMETER);
 			
 			//draw well if needed
-			System.out.println("Well @ All:  " + showWellsOnAll);
-			System.out.println("Well @ Node: " + showWellsOnNode + "\n");
 			if ((showWellsOnNode && node == activeNode) || showWellsOnAll)
 			{
 				int wellDiameter = 2*node.getRange();

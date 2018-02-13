@@ -1,34 +1,56 @@
+/**
+ * Class:				TreeNode.java
+ * Project:				Lowpan Network Sim
+ * Author:				Jason Van Kerkhoven
+ * Date of Update:		12/02/2017
+ * Version:				1.0.0
+ * 
+ * Purpose:				Basic node for tree structure
+ * 
+ * Update Log:			v1.0.1
+ * 							- parameterized issues fixed
+ * 						v1.0.0
+ * 							- null
+ */
 package datatype;
 
+
+
+//import library classes
 import java.util.HashSet;
 
-import datatype.LowpanNode;
+
+
 
 public class TreeNode<k>
 {
 	//declaring local instance variables
 	private TreeNode<k> parent;
 	private k self;
-	private HashSet<TreeNode> children;
+	private HashSet<TreeNode<k>> children;
 	
 	
 	//generic constructor for node
-	public TreeNode(TreeNode parent, k self)
+	public TreeNode(TreeNode<k> parent, k self)
 	{
 		this.parent = parent;
 		this.self = self;
-		children = new HashSet<TreeNode>();
+		children = new HashSet<TreeNode<k>>();
 	}
 	
 	
 	//generic getters
-	public HashSet<TreeNode> getChildren()
+	public HashSet<TreeNode<k>> getChildren()
 	{
 		return children;
 	}
 	public k getSelf()
 	{
 		return self;
+	}
+	public TreeNode<k> getParent()
+	{
+		return parent;
 	}
 	
 	

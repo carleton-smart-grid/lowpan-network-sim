@@ -243,33 +243,11 @@ public class LowpanNode
 		
 		if (srcToDodag != null && dodagToDest != null)
 		{
-			//TODO delete this block
-			String s = "src->root:  ";
-			for (LowpanNode node : srcToDodag)
-			{
-				s += node.getId()  + ", ";
-			}
-			s += "  root->src:  ";
-			for (LowpanNode node : dodagToDest)
-			{
-				s += node.getId() + ", ";
-			}
-			System.out.println(new SimpleDateFormat("HH:mm:ss").format(new Date()) + ":  " +s);
-			
 			dodagToDest.remove(0);
 			for (LowpanNode node : dodagToDest)
 			{
 				srcToDodag.add(node);
 			}
-			
-			//TODO delete this block
-			s = "";
-			for (LowpanNode node : srcToDodag)
-			{
-				s += node.getId()  + ", ";
-			}
-			System.out.println(new SimpleDateFormat("HH:mm:ss").format(new Date()) + ":  RPL:  " +s);
-			
 			return srcToDodag;
 		}
 		else
