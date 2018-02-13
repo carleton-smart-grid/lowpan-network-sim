@@ -23,7 +23,7 @@ import java.util.LinkedList;
 
 //import packages
 import ctrl.LowpanSim;
-import datatype.tree.TreeNode;
+import datatype.TreeNode;
 
 
 
