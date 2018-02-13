@@ -2,7 +2,7 @@
  * Class:				NetworkView.java
  * Project:				Lowpan Network Sim
  * Author:				Jason Van Kerkhoven
- * Date of Update:		25/11/2017
+ * Date of Update:		12/02/2017
  * Version:				1.0.0
  * 
  * Purpose:				Graphical user interface for system.
@@ -23,22 +23,20 @@ import java.awt.event.MouseListener;
 import java.util.HashSet;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.JTextArea;
-import javax.swing.JScrollPane;
 import java.awt.GridLayout;
 import javax.swing.JButton;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.JCheckBox;
-import javax.swing.ScrollPaneConstants;
 import java.awt.Color;
 import java.awt.Dimension;
 
-//import packages
+//link packages
 import ctrl.LowpanSim;
 import datatype.LowpanNode;
 import javax.swing.JComboBox;
@@ -64,7 +62,6 @@ public class NetworkView extends JFrame implements ActionListener
 	private static final Font INPUT_LABEL_FONT = new Font("Tahoma", Font.BOLD, 16);
 	private static final Font INPUT_FIELD_FONT = new Font("Tahoma", Font.PLAIN, 12);
 	private static final Font CONNECTION_DISPLAY_FONT = new Font("Tahoma", Font.BOLD, 14);
-	//private static final Font CONSOLE_FONT = new Font("Monospaced", Font.PLAIN, 13);
 	
 	//declaring local instance variables
 	private HashSet<LowpanNode> nodes;
@@ -96,7 +93,7 @@ public class NetworkView extends JFrame implements ActionListener
 		this.setBounds(0, 0, DEFAULT_WINDOW_X, DEFAULT_WINDOW_Y);
 		this.setResizable(false);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
+		this.setIconImage(new ImageIcon("icon.gif").getImage());
 		JPanel contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -255,13 +252,14 @@ public class NetworkView extends JFrame implements ActionListener
 		auxSubPanel.add(labelSignalWells);
 		
 		radioWellsActiveNode = new JRadioButton("Active Node Only");
-		radioWellsActiveNode.setBounds(137, 45, 130, 23);
+		radioWellsActiveNode.setSelected(true);
+		radioWellsActiveNode.setBounds(132, 45, 135, 23);
 		radioWellsActiveNode.addActionListener(this);
 		signalWells.add(radioWellsActiveNode);
 		auxSubPanel.add(radioWellsActiveNode);
 		
 		radioWellsAllNode = new JRadioButton("All Nodes");
-		radioWellsAllNode.setBounds(137, 70, 130, 23);
+		radioWellsAllNode.setBounds(132, 71, 135, 23);
 		radioWellsAllNode.addActionListener(this);
 		signalWells.add(radioWellsAllNode);
 		auxSubPanel.add(radioWellsAllNode);
@@ -277,13 +275,13 @@ public class NetworkView extends JFrame implements ActionListener
 		auxSubPanel.add(labelMeshEdges);
 		
 		radioMeshActiveNode = new JRadioButton("Active Node Only");
-		radioMeshActiveNode.setBounds(137, 104, 130, 23);
+		radioMeshActiveNode.setBounds(132, 104, 135, 23);
 		radioMeshActiveNode.addActionListener(this);
 		meshEdges.add(radioMeshActiveNode);
 		auxSubPanel.add(radioMeshActiveNode);
 		
 		radioMeshAllNode = new JRadioButton("All Nodes");
-		radioMeshAllNode.setBounds(137, 130, 130, 23);
+		radioMeshAllNode.setBounds(132, 130, 135, 23);
 		radioMeshAllNode.addActionListener(this);
 		radioMeshAllNode.setSelected(true);
 		meshEdges.add(radioMeshAllNode);
@@ -300,14 +298,14 @@ public class NetworkView extends JFrame implements ActionListener
 		auxSubPanel.add(labelRadioType);
 		
 		JRadioButton radioRadioB = new JRadioButton("\"Realistic\" Radio B");
-		radioRadioB.setBounds(137, 182, 130, 23);
+		radioRadioB.setBounds(132, 182, 135, 23);
 		radioRadioB.setActionCommand(RADIO_TYPE_B);
 		radioRadioB.addActionListener(actionListener);
 		radioButtons.add(radioRadioB);
 		auxSubPanel.add(radioRadioB);
 		
 		JRadioButton radioRadioA = new JRadioButton("\"EasySim\" Radio A");
-		radioRadioA.setBounds(137, 156, 130, 23);
+		radioRadioA.setBounds(132, 156, 135, 23);
 		radioRadioA.setActionCommand(RADIO_TYPE_A);
 		radioRadioA.addActionListener(actionListener);
 		radioRadioA.setSelected(true);
@@ -317,7 +315,7 @@ public class NetworkView extends JFrame implements ActionListener
 		//add checkboxes for mesh display settings
 		toggleDistances = new JCheckBox("Edge Labels");
 		toggleDistances.setSelected(false);
-		toggleDistances.setBounds(158, 223, 109, 23);
+		toggleDistances.setBounds(116, 223, 109, 23);
 		toggleDistances.addActionListener(this);
 		auxSubPanel.add(toggleDistances);
 		
@@ -391,6 +389,7 @@ public class NetworkView extends JFrame implements ActionListener
 		//add DODAG select for RPL routing
 		rootNodeSelector = new JComboBox<LowpanNode>();
 		rootNodeSelector.setEnabled(false);
+		rootNodeSelector.addActionListener(this);
 		rootNodeSelector.setBounds(186, 90, 79, 22);
 		routingPanel.add(rootNodeSelector);
 		
@@ -529,9 +528,12 @@ public class NetworkView extends JFrame implements ActionListener
 		destinationSelector.setEnabled(route);
 		
 		//update routing information		TODO these casts should be unnecessary
-		canvasPane.setRoutingNodes((LowpanNode)sourceSelector.getSelectedItem(), 
-									(LowpanNode)destinationSelector.getSelectedItem(),
-									(LowpanNode)rootNodeSelector.getSelectedItem());
+		if (route)
+		{
+			canvasPane.setRoutingNodes( (LowpanNode)sourceSelector.getSelectedItem(), 
+										(LowpanNode)destinationSelector.getSelectedItem(),
+										(LowpanNode)rootNodeSelector.getSelectedItem());
+		}
 		
 		//set flags in node canvas
 		canvasPane.setSignalWells(radioWellsActiveNode.isSelected(), radioWellsAllNode.isSelected());
