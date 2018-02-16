@@ -47,6 +47,7 @@ import javax.swing.JRadioButton;
 
 public class NetworkView extends JFrame implements ActionListener 
 {	
+	private static final long serialVersionUID = 1L;
 	//declaring static class constants
 	public static final String BTN_UPDATE = "btn/update";
 	public static final String BTN_REMOVE = "btn/remove";
@@ -91,7 +92,7 @@ public class NetworkView extends JFrame implements ActionListener
 		//set up main window frame
 		super(title);
 		this.setBounds(0, 0, DEFAULT_WINDOW_X, DEFAULT_WINDOW_Y);
-		this.setResizable(false);
+//		this.setResizable(false);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setIconImage(new ImageIcon("icon.gif").getImage());
 		JPanel contentPane = new JPanel();
@@ -107,7 +108,7 @@ public class NetworkView extends JFrame implements ActionListener
 		canvasPane = new NodeCanvas(nodes);
 		canvasPane.setBackground(Color.WHITE);
 		canvasPane.setBorder(BorderFactory.createLineBorder(Color.black));
-		canvasPane.setPreferredSize(new Dimension(LowpanSim.MAX_X, LowpanSim.MAX_Y));
+		canvasPane.setPreferredSize(new Dimension(DEFAULT_WINDOW_X, DEFAULT_WINDOW_Y));
 		canvasPane.addMouseListener(mouseListener);
 		canvasPane.addKeyListener(keyListener);
 		contentPane.add(canvasPane, BorderLayout.CENTER);
@@ -511,6 +512,14 @@ public class NetworkView extends JFrame implements ActionListener
 	{
 		canvasPane.repaint();
 		updateNodeDisplay();
+	}
+	
+	public double getCanvasHeight() {
+		return canvasPane.getSize().getHeight();
+	}
+	
+	public double getCanvasWidth() {
+		return canvasPane.getSize().getWidth();
 	}
 
 

@@ -24,6 +24,7 @@ import java.util.LinkedList;
 //import packages
 import ctrl.LowpanSim;
 import datatype.TreeNode;
+import ui.NetworkView;
 
 
 
@@ -34,8 +35,6 @@ public class LowpanNode
 	public static final int STEP = 30;
 	public static final int RANGE_STEP = 5;
 	public static final int MIN_RANGE = LowpanSim.MIN_RANGE;
-	public static final int MAX_X = LowpanSim.MAX_X;
-	public static final int MAX_Y = LowpanSim.MAX_Y;
 	public static final int MIN_X = LowpanSim.MIN_XY;
 	public static final int MIN_Y = LowpanSim.MIN_XY;
 	
@@ -45,13 +44,15 @@ public class LowpanNode
 	private int range;
 	private Point location;
 	private HashSet<LowpanNode> neighbours;
+	private NetworkView ui;
 	
 	
 	//generic constructor
-	public LowpanNode(int id, String name, int range, int locX, int locY)
+	public LowpanNode(int id, String name, int range, int locX, int locY, NetworkView ui)
 	{
 		this.id = id;
 		this.name = name;
+		this.ui = ui;
 		setRange(range);
 		
 		location = new Point();
@@ -70,6 +71,16 @@ public class LowpanNode
 	{
 		return name;
 	}
+	
+	public void forceLocationOnCanvas() {
+		if (location.getX() > ui.getCanvasWidth() - MIN_X) {
+			setLocation((int) ui.getCanvasWidth() - MIN_X, location.y);
+		}
+		if (location.getY() > ui.getCanvasHeight() - MIN_Y) {
+			setLocation(location.x, (int) ui.getCanvasHeight() - MIN_Y);
+		}
+	}
+	
 	public Point getLocation()
 	{
 		return location;
@@ -100,9 +111,9 @@ public class LowpanNode
 		{
 			location.x = MIN_X;
 		}
-		else if (locX >= MAX_X)
+		else if (locX >= (int) ui.getCanvasWidth()  - MIN_X)
 		{
-			location.x = MAX_X;
+			location.x = (int) ui.getCanvasWidth() - MIN_X;
 		}
 		else
 		{
@@ -114,9 +125,9 @@ public class LowpanNode
 		{
 			location.y = MIN_Y;
 		}
-		else if (locY >= MAX_Y)
+		else if (locY >= (int) ui.getCanvasHeight() - MIN_Y)
 		{
-			location.y = MAX_Y;
+			location.y = (int) ui.getCanvasHeight() - MIN_Y;
 		}
 		else
 		{
@@ -139,7 +150,7 @@ public class LowpanNode
 	//increment/decrement X component of location
 	public void incX()
 	{
-		location.x = (location.x+STEP < MAX_X) ? location.x+STEP : MAX_X;
+		location.x = (location.x+STEP < (int) ui.getCanvasWidth() - MIN_X) ? location.x+STEP : ((int) ui.getCanvasWidth() - MIN_X);
 	}
 	public void decX()
 	{
@@ -150,7 +161,7 @@ public class LowpanNode
 	//increment/decrement Y component of location
 	public void incY()
 	{
-		location.y = (location.y+STEP < MAX_Y) ? location.y+STEP : MAX_Y;
+		location.y = (location.y+STEP < (int) ui.getCanvasHeight() - MIN_Y) ? location.y+STEP : (int) ui.getCanvasHeight() - MIN_Y;
 	}
 	public void decY()
 	{

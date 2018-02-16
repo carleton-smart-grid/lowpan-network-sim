@@ -31,8 +31,6 @@ import datatype.LowpanNode;
 public class NodeCanvas extends JPanel 
 {
 	//declaring static class constants
-	private static final double SIM_X = LowpanSim.MAX_X;
-	private static final double SIM_Y = LowpanSim.MAX_Y;
 	private static final int ROUTING_THICCNESS = 4;
 	public static final int NODE_DIAMETER = 20;
 	
@@ -240,6 +238,10 @@ public class NodeCanvas extends JPanel
 		for (LowpanNode node : nodes)
 		{
 			//draw node
+			
+			//OPTIONAL - this will bork a current setup if the window is resized
+			node.forceLocationOnCanvas();
+			
 			Point loc = node.getLocation();
 			int centroidX = loc.x - NODE_DIAMETER/2;
 			int centroidY = loc.y - NODE_DIAMETER/2;

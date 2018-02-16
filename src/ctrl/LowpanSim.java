@@ -38,8 +38,6 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 {
 	//declaring static class constants
 	public static final String WINDOW_NAME = "6LoWPAN Mesh Network Sim";
-	public static final int MAX_X = 1000;
-	public static final int MAX_Y = 650;
 	public static final int MIN_XY = 10;
 	public static final int MIN_RANGE = NodeCanvas.NODE_DIAMETER/2;
 	public static final int DEFAULT_RANGE = 100;
@@ -68,7 +66,7 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 	public void addNode(String name, int range, int locX, int locY)
 	{
 		int id = dispatch.getNextID();
-		LowpanNode node = new LowpanNode(id, name, range, locX, locY);
+		LowpanNode node = new LowpanNode(id, name, range, locX, locY, ui);
 		nodes.add(node);
 		
 		ui.updateRoutingSelectors(nodes);
@@ -171,7 +169,7 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 						
 					//add new node
 					case (NetworkView.BTN_NEW_NODE):
-						this.addNode(DEFAULT_NAME, DEFAULT_RANGE, MAX_X/2, MAX_Y/2);
+						this.addNode(DEFAULT_NAME, DEFAULT_RANGE, (int) ui.getCanvasWidth()/2, (int) ui.getCanvasHeight()/2);
 						break;
 					
 					//remove all nodes
