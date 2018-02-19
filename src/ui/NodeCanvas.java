@@ -16,6 +16,7 @@ package ui;
 //import libraries
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -28,7 +29,7 @@ import javax.swing.JPanel;
 import ctrl.LowpanSim;
 import datatype.LowpanNode;
 
-public class NodeCanvas extends JPanel 
+public class NodeCanvas extends JPanel
 {
 	//declaring static class constants
 	private static final int ROUTING_THICCNESS = 4;
@@ -110,6 +111,7 @@ public class NodeCanvas extends JPanel
 	
 	
 	@Override
+	//called on every component update or super component update trickle-down
 	public void paint(Graphics g)
 	{
 		super.paint(g);
@@ -238,10 +240,6 @@ public class NodeCanvas extends JPanel
 		for (LowpanNode node : nodes)
 		{
 			//draw node
-			
-			//OPTIONAL - this will bork a current setup if the window is resized
-			node.forceLocationOnCanvas();
-			
 			Point loc = node.getLocation();
 			int centroidX = loc.x - NODE_DIAMETER/2;
 			int centroidY = loc.y - NODE_DIAMETER/2;

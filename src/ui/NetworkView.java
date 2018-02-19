@@ -18,6 +18,7 @@ package ui;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentListener;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 import java.util.HashSet;
@@ -45,7 +46,7 @@ import javax.swing.JRadioButton;
 
 
 
-public class NetworkView extends JFrame implements ActionListener 
+public class NetworkView extends JFrame implements ActionListener, SizeReporter
 {	
 	private static final long serialVersionUID = 1L;
 	//declaring static class constants
@@ -87,12 +88,13 @@ public class NetworkView extends JFrame implements ActionListener
 	private JTextField labelRadioType;
 	
 	//generic constructor
-	public NetworkView(String title, HashSet<LowpanNode> nodes, MouseListener mouseListener, ActionListener actionListener, KeyListener keyListener)
+	public NetworkView(String title, HashSet<LowpanNode> nodes, MouseListener mouseListener, ActionListener actionListener, KeyListener keyListener, ComponentListener componentListener)
 	{
 		//set up main window frame
 		super(title);
 		this.setBounds(0, 0, DEFAULT_WINDOW_X, DEFAULT_WINDOW_Y);
-//		this.setResizable(false);
+		this.setMinimumSize(new Dimension(0, DEFAULT_WINDOW_Y));
+		this.setResizable(true);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setIconImage(new ImageIcon("icon.gif").getImage());
 		JPanel contentPane = new JPanel();
@@ -111,6 +113,7 @@ public class NetworkView extends JFrame implements ActionListener
 		canvasPane.setPreferredSize(new Dimension(DEFAULT_WINDOW_X, DEFAULT_WINDOW_Y));
 		canvasPane.addMouseListener(mouseListener);
 		canvasPane.addKeyListener(keyListener);
+		canvasPane.addComponentListener(componentListener);
 		contentPane.add(canvasPane, BorderLayout.CENTER);
 		
 		//add aux pane for node info/log
@@ -507,6 +510,30 @@ public class NetworkView extends JFrame implements ActionListener
 	}
 	
 	
+	@Override
+	//generic getters for NodeCanvas dimensions
+	public Dimension getCurrentSize() 
+	{
+		return canvasPane.getSize();
+	}
+	
+	
+	@Override
+	//generic getter for NodeCanvas X size
+	public int getCurrentX() 
+	{
+		return canvasPane.getWidth();
+	}
+	
+	
+	@Override
+	//generic getter for NodeCanvas Y size
+	public int getCurrentY() 
+	{
+		return canvasPane.getHeight();
+	}
+	
+	
 	//redraw node canvas
 	public void update()
 	{
@@ -514,12 +541,11 @@ public class NetworkView extends JFrame implements ActionListener
 		updateNodeDisplay();
 	}
 	
-	public double getCanvasHeight() {
-		return canvasPane.getSize().getHeight();
-	}
 	
-	public double getCanvasWidth() {
-		return canvasPane.getSize().getWidth();
+	//get the current size of the NodeCanvas object
+	public Dimension getCanvasSize() 
+	{
+		return canvasPane.getSize();
 	}
 
 
