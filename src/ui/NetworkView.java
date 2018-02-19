@@ -38,7 +38,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 
 //link packages
-import ctrl.LowpanSim;
 import datatype.LowpanNode;
 import javax.swing.JComboBox;
 import javax.swing.JRadioButton;
@@ -63,10 +62,8 @@ public class NetworkView extends JFrame implements ActionListener, SizeReporter
 	private static final int RP_HEIGHT = 150;
 	private static final Font INPUT_LABEL_FONT = new Font("Tahoma", Font.BOLD, 16);
 	private static final Font INPUT_FIELD_FONT = new Font("Tahoma", Font.PLAIN, 12);
-	private static final Font CONNECTION_DISPLAY_FONT = new Font("Tahoma", Font.BOLD, 14);
 	
 	//declaring local instance variables
-	private HashSet<LowpanNode> nodes;
 	private LowpanNode activeNode;
 	private NodeCanvas canvasPane;
 	
@@ -104,7 +101,6 @@ public class NetworkView extends JFrame implements ActionListener, SizeReporter
 		
 		//init non-gui components
 		this.activeNode = null;
-		this.nodes = nodes;
 
 		//add main canvas for network
 		canvasPane = new NodeCanvas(nodes);

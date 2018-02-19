@@ -24,7 +24,6 @@ import java.util.LinkedList;
 //import packages
 import ctrl.LowpanSim;
 import datatype.TreeNode;
-import ui.NetworkView;
 import ui.SizeReporter;
 
 
