@@ -24,6 +24,8 @@ import java.util.LinkedList;
 //import packages
 import ctrl.LowpanSim;
 import datatype.TreeNode;
+import ui.NetworkView;
+import ui.SizeReporter;
 
 
 
@@ -34,8 +36,6 @@ public class LowpanNode
 	public static final int STEP = 30;
 	public static final int RANGE_STEP = 5;
 	public static final int MIN_RANGE = LowpanSim.MIN_RANGE;
-	public static final int MAX_X = LowpanSim.MAX_X;
-	public static final int MAX_Y = LowpanSim.MAX_Y;
 	public static final int MIN_X = LowpanSim.MIN_XY;
 	public static final int MIN_Y = LowpanSim.MIN_XY;
 	
@@ -45,13 +45,15 @@ public class LowpanNode
 	private int range;
 	private Point location;
 	private HashSet<LowpanNode> neighbours;
+	private SizeReporter sizeLimit;
 	
 	
 	//generic constructor
-	public LowpanNode(int id, String name, int range, int locX, int locY)
+	public LowpanNode(int id, String name, int range, int locX, int locY, SizeReporter sizeLimit)
 	{
 		this.id = id;
 		this.name = name;
+		this.sizeLimit = sizeLimit;
 		setRange(range);
 		
 		location = new Point();
@@ -100,9 +102,9 @@ public class LowpanNode
 		{
 			location.x = MIN_X;
 		}
-		else if (locX >= MAX_X)
+		else if (locX >= sizeLimit.getCurrentX() - MIN_X)
 		{
-			location.x = MAX_X;
+			location.x = sizeLimit.getCurrentX() - MIN_X;
 		}
 		else
 		{
@@ -114,14 +116,22 @@ public class LowpanNode
 		{
 			location.y = MIN_Y;
 		}
-		else if (locY >= MAX_Y)
+		else if (locY >= sizeLimit.getCurrentY() - MIN_Y)
 		{
-			location.y = MAX_Y;
+			location.y = sizeLimit.getCurrentY() - MIN_Y;
 		}
 		else
 		{
 			location.y = locY;
 		}
+	}
+	
+	
+	//confirm location is still valid in new min/max condition
+	public void validateLocation()
+	{
+		Point p = this.getLocation();
+		this.setLocation(p.x, p.y);
 	}
 	
 	
@@ -139,7 +149,7 @@ public class LowpanNode
 	//increment/decrement X component of location
 	public void incX()
 	{
-		location.x = (location.x+STEP < MAX_X) ? location.x+STEP : MAX_X;
+		location.x = (location.x+STEP < sizeLimit.getCurrentX() - MIN_X) ? location.x+STEP : (sizeLimit.getCurrentX() - MIN_X);
 	}
 	public void decX()
 	{
@@ -150,7 +160,7 @@ public class LowpanNode
 	//increment/decrement Y component of location
 	public void incY()
 	{
-		location.y = (location.y+STEP < MAX_Y) ? location.y+STEP : MAX_Y;
+		location.y = (location.y+STEP < sizeLimit.getCurrentY() - MIN_Y) ? location.y+STEP : sizeLimit.getCurrentY() - MIN_Y;
 	}
 	public void decY()
 	{
@@ -191,16 +201,6 @@ public class LowpanNode
 		}
 		dump.add(this);
 		
-		//TODO DEL THIS block
-		/*
-		System.out.println("Root:  " + root.getSelf().getId());
-		String s1 = "Layer: ";
-		for (TreeNode<LowpanNode> nxtNode : nxtLayer)
-		{
-			s1 += nxtNode.getSelf().getId() + ", ";
-		}
-		System.out.println(s1); */
-		
 		while (!nxtLayer.isEmpty())
 		{
 			//swap current layer to next layer
@@ -221,13 +221,10 @@ public class LowpanNode
 			}
 			
 			//add each unique item in nxtLayer
-			//String s = "Layer: ";									//TODO DELETE
 			for (TreeNode<LowpanNode> nxtNode : nxtLayer)
 			{
-				//s += nxtNode.getSelf().getId() + ", ";				//TODO DELETE
 				dump.add(nxtNode.getSelf());
 			}
-			//System.out.println(s);									//TODO DELETE
 		}
 		
 		return root;

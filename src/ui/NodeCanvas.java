@@ -16,6 +16,7 @@ package ui;
 //import libraries
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -28,11 +29,9 @@ import javax.swing.JPanel;
 import ctrl.LowpanSim;
 import datatype.LowpanNode;
 
-public class NodeCanvas extends JPanel 
+public class NodeCanvas extends JPanel
 {
 	//declaring static class constants
-	private static final double SIM_X = LowpanSim.MAX_X;
-	private static final double SIM_Y = LowpanSim.MAX_Y;
 	private static final int ROUTING_THICCNESS = 4;
 	public static final int NODE_DIAMETER = 20;
 	
@@ -112,6 +111,7 @@ public class NodeCanvas extends JPanel
 	
 	
 	@Override
+	//called on every component update or super component update trickle-down
 	public void paint(Graphics g)
 	{
 		super.paint(g);

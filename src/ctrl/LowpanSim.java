@@ -15,10 +15,13 @@
 package ctrl;
 
 
+import java.awt.Dimension;
 //import libraries
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -34,12 +37,10 @@ import ui.NodeCanvas;
 
 
 
-public class LowpanSim implements MouseListener, ActionListener, KeyListener
+public class LowpanSim implements MouseListener, ActionListener, KeyListener, ComponentListener
 {
 	//declaring static class constants
 	public static final String WINDOW_NAME = "6LoWPAN Mesh Network Sim";
-	public static final int MAX_X = 1000;
-	public static final int MAX_Y = 650;
 	public static final int MIN_XY = 10;
 	public static final int MIN_RANGE = NodeCanvas.NODE_DIAMETER/2;
 	public static final int DEFAULT_RANGE = 100;
@@ -58,7 +59,7 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 		//initialize
 		nodes = new HashSet<LowpanNode>();
 		dispatch = new IdDispatcher();
-		ui = new NetworkView(WINDOW_NAME, nodes, this, this, this);
+		ui = new NetworkView(WINDOW_NAME, nodes, this, this, this, this);
 		ui.enabledKeyInput();
 		radioType = true;
 	}
@@ -68,7 +69,7 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 	public void addNode(String name, int range, int locX, int locY)
 	{
 		int id = dispatch.getNextID();
-		LowpanNode node = new LowpanNode(id, name, range, locX, locY);
+		LowpanNode node = new LowpanNode(id, name, range, locX, locY, ui);
 		nodes.add(node);
 		
 		ui.updateRoutingSelectors(nodes);
@@ -171,7 +172,8 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 						
 					//add new node
 					case (NetworkView.BTN_NEW_NODE):
-						this.addNode(DEFAULT_NAME, DEFAULT_RANGE, MAX_X/2, MAX_Y/2);
+						Dimension cs = ui.getCanvasSize();
+						this.addNode(DEFAULT_NAME, DEFAULT_RANGE, cs.height/2, cs.width/2);
 						break;
 					
 					//remove all nodes
@@ -327,12 +329,26 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener
 	}
 	
 	
+	//handle resizing of main window
+	@Override
+	public void componentResized(ComponentEvent arg0)
+	{
+		for (LowpanNode node : nodes)
+		{
+			node.validateLocation();
+		}
+	}
+	
+	
 	@Override public void keyReleased(KeyEvent ke) {}
 	@Override public void mouseEntered(MouseEvent arg0) {}
 	@Override public void mouseExited(MouseEvent arg0) {}
 	@Override public void mousePressed(MouseEvent arg0) {}
 	@Override public void mouseReleased(MouseEvent arg0) {}
 	@Override public void keyTyped(KeyEvent arg0) {}
+	@Override public void componentHidden(ComponentEvent arg0) {}
+	@Override public void componentMoved(ComponentEvent arg0) {}
+	@Override public void componentShown(ComponentEvent arg0) {}
 	
 	
 	//main runtime
