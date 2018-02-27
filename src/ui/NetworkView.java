@@ -41,13 +41,15 @@ import java.awt.Dimension;
 import datatype.LowpanNode;
 import javax.swing.JComboBox;
 import javax.swing.JRadioButton;
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 
 
 
 
 public class NetworkView extends JFrame implements ActionListener, SizeReporter
 {	
-	private static final long serialVersionUID = 1L;
 	//declaring static class constants
 	public static final String BTN_UPDATE = "btn/update";
 	public static final String BTN_REMOVE = "btn/remove";
@@ -55,9 +57,13 @@ public class NetworkView extends JFrame implements ActionListener, SizeReporter
 	public static final String BTN_NEW_NODE = "btn/newnode";
 	public static final String RADIO_TYPE_A = "btn/radioA";
 	public static final String RADIO_TYPE_B = "btn/radioB";
-	
+	public static final String PRESETS[] = {"1.   \"Louise Linear\"",
+											"2.   \"Tina Tree\"",
+											"3.   \"Stella Sparse\"",
+											"4.   \"Clara Cluster\"",
+											"5.   \"Martha Matrix\""};
 	private static final int DEFAULT_WINDOW_X = 1301;
-	private static final int DEFAULT_WINDOW_Y = 698;
+	private static final int DEFAULT_WINDOW_Y = 721;
 	private static final int AUX_PANEL_WIDTH = 275;
 	private static final int RP_HEIGHT = 150;
 	private static final Font INPUT_LABEL_FONT = new Font("Tahoma", Font.BOLD, 16);
@@ -84,6 +90,7 @@ public class NetworkView extends JFrame implements ActionListener, SizeReporter
 	private JCheckBox idealRoutingToggle;
 	private JTextField labelRadioType;
 	
+	
 	//generic constructor
 	public NetworkView(String title, HashSet<LowpanNode> nodes, MouseListener mouseListener, ActionListener actionListener, KeyListener keyListener, ComponentListener componentListener)
 	{
@@ -94,10 +101,30 @@ public class NetworkView extends JFrame implements ActionListener, SizeReporter
 		this.setResizable(true);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setIconImage(new ImageIcon("icon.gif").getImage());
+		
 		JPanel contentPane = new JPanel();
+		contentPane.setLayout(new BorderLayout(0, 0));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
-		contentPane.setLayout(new BorderLayout(0, 0));
+		
+		//set up menu bar
+		JMenuBar menuBar = new JMenuBar();
+		this.setJMenuBar(menuBar);
+		
+		//add menu items to menu bar
+		JMenu presetsMenuBin = new JMenu("Presets");
+		menuBar.add(presetsMenuBin);
+		
+		//add presets to preset bin
+		JMenuItem[] preset = new JMenuItem[PRESETS.length];
+		for (int i=0; i<preset.length; i++)
+		{
+			preset[i] = new JMenuItem(PRESETS[i]);
+			preset[i].setActionCommand(PRESETS[i]);
+			preset[i].addActionListener(actionListener);
+			presetsMenuBin.add(preset[i]);
+		}
+		
 		
 		//init non-gui components
 		this.activeNode = null;

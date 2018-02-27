@@ -128,6 +128,66 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener, Co
 			this.computePaths();
 			ui.update();
 		}
+		
+		//change to linear preset
+		else if (cmd.equals(NetworkView.PRESETS[0]))
+		{
+			dispatch.reset();
+			this.removeAllNodes();
+			this.addNode("First", 100, 85, 320);
+			this.addNode("Second", 100, 265, 320);
+			this.addNode("Third", 100, 445, 320);
+			this.addNode("Forth", 100, 625, 320);
+			this.addNode("Fifth", 100, 805, 320);
+			ui.update();
+		}
+		//change to tree preset
+		else if (cmd.equals(NetworkView.PRESETS[1]))
+		{
+			dispatch.reset();
+			this.removeAllNodes();
+			this.addNode("Jess", 100, 505, 50);
+			this.addNode("Nick", 100, 325, 110);
+			this.addNode("Schmidt", 100, 685, 110);
+			this.addNode("Coach", 100, 205, 260);
+			this.addNode("CeCe", 100, 445, 260);
+			this.addNode("Winston", 100, 685, 260);
+			this.addNode("Caroline", 75, 115, 350);
+			this.addNode("Paul", 70, 295, 350);
+			this.addNode("Gina", 80, 385, 470);
+			this.addNode("Sadie", 65, 235, 470);
+			ui.update();
+		}
+		//change to sparse preset
+		else if (cmd.equals(NetworkView.PRESETS[2]))
+		{
+			dispatch.reset();
+			this.removeAllNodes();
+			this.addNode("Isengard TA", 175, 650, 175);
+			this.addNode("Minas Tirith CA", 100, 430, 290);
+			this.addNode("Minas Morgul CA", 100, 310, 170);
+			this.addNode("Rivendell CA", 100, 260, 295);
+			this.addNode("Barad-dur CA", 100, 400, 430);
+			this.addNode("Helm's Deep CA", 100, 550, 550);
+			ui.update();
+		}
+		//change to cluster preset
+		else if (cmd.equals(NetworkView.PRESETS[3]))
+		{
+			dispatch.reset();
+			this.removeAllNodes();
+			//TODO add something
+			ui.update();
+		}
+		//change to matrix preset
+		else if (cmd.equals(NetworkView.PRESETS[4]))
+		{
+			dispatch.reset();
+			this.removeAllNodes();
+			//TODO add something
+			ui.update();
+		}
+		
 		//source is alternating node information
 		else
 		{
