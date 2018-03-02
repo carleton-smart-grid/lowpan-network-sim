@@ -72,7 +72,6 @@ public class NetworkView extends JFrame implements ActionListener, SizeReporter
 	//declaring local instance variables
 	private LowpanNode activeNode;
 	private NodeCanvas canvasPane;
-	
 	private JTextField nameField;
 	private JTextField rangeField;
 	private JTextField xField;
@@ -88,11 +87,16 @@ public class NetworkView extends JFrame implements ActionListener, SizeReporter
 	private JRadioButton radioWellsActiveNode, radioWellsAllNode;
 	private JCheckBox rplRoutingToggle;
 	private JCheckBox idealRoutingToggle;
-	private JTextField labelRadioType;
 	
 	
 	//generic constructor
-	public NetworkView(String title, HashSet<LowpanNode> nodes, MouseListener mouseListener, ActionListener actionListener, KeyListener keyListener, ComponentListener componentListener)
+	public NetworkView(String title,
+			HashSet<LowpanNode> nodes,
+			boolean fullScreen,
+			MouseListener mouseListener,
+			ActionListener actionListener,
+			KeyListener keyListener,
+			ComponentListener componentListener)
 	{
 		//set up main window frame
 		super(title);
@@ -100,19 +104,19 @@ public class NetworkView extends JFrame implements ActionListener, SizeReporter
 		this.setMinimumSize(new Dimension(0, DEFAULT_WINDOW_Y));
 		this.setResizable(true);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setIconImage(new ImageIcon("icon.gif").getImage());
-		
+		this.setIconImage(new ImageIcon("icon.gif").getImage());		
 		JPanel contentPane = new JPanel();
 		contentPane.setLayout(new BorderLayout(0, 0));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		
+		//init non-gui components
+		this.activeNode = null;
+		
 		//set up menu bar
 		JMenuBar menuBar = new JMenuBar();
-		this.setJMenuBar(menuBar);
-		
-		//add menu items to menu bar
 		JMenu presetsMenuBin = new JMenu("Presets");
+		this.setJMenuBar(menuBar);
 		menuBar.add(presetsMenuBin);
 		
 		//add presets to preset bin
@@ -124,10 +128,6 @@ public class NetworkView extends JFrame implements ActionListener, SizeReporter
 			preset[i].addActionListener(actionListener);
 			presetsMenuBin.add(preset[i]);
 		}
-		
-		
-		//init non-gui components
-		this.activeNode = null;
 
 		//add main canvas for network
 		canvasPane = new NodeCanvas(nodes);
@@ -316,7 +316,7 @@ public class NetworkView extends JFrame implements ActionListener, SizeReporter
 		
 		//add radio types
 		ButtonGroup radioButtons = new ButtonGroup();
-		labelRadioType = new JTextField();
+		JTextField labelRadioType = new JTextField();
 		labelRadioType.setText("Radio Type:");
 		labelRadioType.setEditable(false);
 		labelRadioType.setColumns(10);
@@ -421,6 +421,11 @@ public class NetworkView extends JFrame implements ActionListener, SizeReporter
 		routingPanel.add(rootNodeSelector);
 		
 		//set visible
+		if (fullScreen)
+		{
+			this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+			this.setUndecorated(true);
+		}
 		this.setVisible(true);
 	}
 	

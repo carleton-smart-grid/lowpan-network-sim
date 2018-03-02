@@ -59,7 +59,7 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener, Co
 		//initialize
 		nodes = new HashSet<LowpanNode>();
 		dispatch = new IdDispatcher();
-		ui = new NetworkView(WINDOW_NAME, nodes, this, this, this, this);
+		ui = new NetworkView(WINDOW_NAME, nodes, false, this, this, this, this);
 		ui.enabledKeyInput();
 		radioType = true;
 	}
@@ -184,7 +184,19 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener, Co
 		{
 			dispatch.reset();
 			this.removeAllNodes();
-			//TODO add something
+			this.addNode("Julius", 100, 235, 110);
+			this.addNode("Augustus", 100, 415, 110);
+			this.addNode("Tiberius", 100, 595, 110);
+			this.addNode("Caligula", 100, 325, 200);
+			this.addNode("Claudius", 100, 505, 200);
+			this.addNode("Nero", 100, 235, 290);
+			this.addNode("Titus", 100, 415, 290);
+			this.addNode("Marcus Aurelius", 100, 595, 290);
+			this.addNode("Commodus", 100, 325, 380);
+			this.addNode("Septimius Severus", 100, 505, 380);
+			this.addNode("Constantine I", 100, 235, 470);
+			this.addNode("Valerian", 100, 415, 470);
+			this.addNode("Pertinax", 100, 595, 470);
 			ui.update();
 		}
 		
@@ -414,6 +426,27 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener, Co
 	//main runtime
 	public static void main(String[] args)
 	{
+		//parse arguments
+		boolean fullscreen = false;
+		for (String flag : args)
+		{
+			switch (flag)
+			{
+				//fullscreen flag
+				case("-f"):
+				case("--fullscreen"):
+					fullscreen = false;
+					break;
+				
+				//unknown flag
+				default:
+					System.out.println("Unknown flag \"" + flag + "\" found\nTerminating...\n");
+					System.exit(0);
+					break;
+			}
+		}
+		
+		//create new simulator
 		LowpanSim sim = new LowpanSim();
 		sim.addNode("Isengard TA", 175, 650, 175);
 		sim.addNode("Minas Tirith CA", 100, 430, 290);
@@ -421,6 +454,8 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener, Co
 		sim.addNode("Rivendell CA", 100, 260, 295);
 		sim.addNode("Barad-dur CA", 100, 400, 430);
 		sim.addNode("Helm's Deep CA", 100, 550, 550);
+		
+		
 		
 		/*
 		HashSet<LowpanNode> nodes = sim.getNodes();
