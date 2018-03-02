@@ -56,10 +56,15 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener, Co
 	//generic constructor
 	public LowpanSim()
 	{
+		this(false);
+	}
+	//base constructor
+	public LowpanSim(boolean fullscreen)
+	{
 		//initialize
 		nodes = new HashSet<LowpanNode>();
 		dispatch = new IdDispatcher();
-		ui = new NetworkView(WINDOW_NAME, nodes, false, this, this, this, this);
+		ui = new NetworkView(WINDOW_NAME, nodes, fullscreen, this, this, this, this);
 		ui.enabledKeyInput();
 		radioType = true;
 	}
@@ -150,7 +155,7 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener, Co
 			this.addNode("Nick", 100, 325, 110);
 			this.addNode("Schmidt", 100, 685, 110);
 			this.addNode("Coach", 100, 205, 260);
-			this.addNode("CeCe", 100, 445, 260);
+			this.addNode("Cece", 100, 445, 260);
 			this.addNode("Winston", 100, 685, 260);
 			this.addNode("Caroline", 75, 115, 350);
 			this.addNode("Paul", 70, 295, 350);
@@ -435,7 +440,7 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener, Co
 				//fullscreen flag
 				case("-f"):
 				case("--fullscreen"):
-					fullscreen = false;
+					fullscreen = true;
 					break;
 				
 				//unknown flag
@@ -447,27 +452,6 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener, Co
 		}
 		
 		//create new simulator
-		LowpanSim sim = new LowpanSim();
-		sim.addNode("Isengard TA", 175, 650, 175);
-		sim.addNode("Minas Tirith CA", 100, 430, 290);
-		sim.addNode("Minas Morgul CA", 100, 310, 170);
-		sim.addNode("Rivendell CA", 100, 260, 295);
-		sim.addNode("Barad-dur CA", 100, 400, 430);
-		sim.addNode("Helm's Deep CA", 100, 550, 550);
-		
-		
-		
-		/*
-		HashSet<LowpanNode> nodes = sim.getNodes();
-		boolean flag = true;
-		for (LowpanNode node : nodes)
-		{
-			if (flag)
-			{
-				System.out.println("treeify!");
-				node.treeify();
-				flag = false;
-			}
-		}	*/
+		LowpanSim sim = new LowpanSim(fullscreen);
 	}
 }
