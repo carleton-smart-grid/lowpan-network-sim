@@ -44,6 +44,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
 
 
@@ -62,6 +63,7 @@ public class NetworkView extends JFrame implements ActionListener, SizeReporter
 											"3.   \"Stella Sparse\"",
 											"4.   \"Clara Cluster\"",
 											"5.   \"Martha Matrix\""};
+	public static final String MENU_SHOW_DODAG = "menu/vis/dodag";
 	private static final int DEFAULT_WINDOW_X = 1301;
 	private static final int DEFAULT_WINDOW_Y = 721;
 	private static final int AUX_PANEL_WIDTH = 275;
@@ -116,8 +118,10 @@ public class NetworkView extends JFrame implements ActionListener, SizeReporter
 		//set up menu bar
 		JMenuBar menuBar = new JMenuBar();
 		JMenu presetsMenuBin = new JMenu("Presets");
-		this.setJMenuBar(menuBar);
+		JMenu visualizationMenuBin = new JMenu("Visualization");
 		menuBar.add(presetsMenuBin);
+		menuBar.add(visualizationMenuBin);
+		this.setJMenuBar(menuBar);
 		
 		//add presets to preset bin
 		JMenuItem[] preset = new JMenuItem[PRESETS.length];
@@ -128,6 +132,12 @@ public class NetworkView extends JFrame implements ActionListener, SizeReporter
 			preset[i].addActionListener(actionListener);
 			presetsMenuBin.add(preset[i]);
 		}
+		
+		//add to visualization bin
+		JMenuItem showDodagTree = new JMenuItem("Show Current DODAG Tree");
+		showDodagTree.setActionCommand(MENU_SHOW_DODAG);
+		showDodagTree.addActionListener(this);
+		visualizationMenuBin.add(showDodagTree);
 
 		//add main canvas for network
 		canvasPane = new NodeCanvas(nodes);
@@ -579,32 +589,66 @@ public class NetworkView extends JFrame implements ActionListener, SizeReporter
 
 	@Override
 	//toggle mesh settings
-	public void actionPerformed(ActionEvent arg0) 
+	public void actionPerformed(ActionEvent arg) 
 	{
-		//set enable for edge distances and rpl root node selector
-		toggleDistances.setEnabled(radioMeshActiveNode.isSelected() || radioMeshAllNode.isSelected());	
-		rootNodeSelector.setEnabled(rplRoutingToggle.isSelected());
+		String cmd = arg.getActionCommand();
 		
-		//set enable for routing selectors
-		boolean route = (idealRoutingToggle.isSelected() || rplRoutingToggle.isSelected());
-		sourceSelector.setEnabled(route);
-		destinationSelector.setEnabled(route);
-		
-		//update routing information		TODO these casts should be unnecessary
-		if (route)
+		//display DODAG in util window
+		if (cmd.equals(MENU_SHOW_DODAG))
 		{
-			canvasPane.setRoutingNodes( (LowpanNode)sourceSelector.getSelectedItem(), 
-										(LowpanNode)destinationSelector.getSelectedItem(),
-										(LowpanNode)rootNodeSelector.getSelectedItem());
+			if (rplRoutingToggle.isSelected())
+			{
+				LowpanNode root = (LowpanNode)rootNodeSelector.getSelectedItem();
+				
+				if (root != null)
+				{
+					DodagFrame dodag = new DodagFrame(root.treeify(), this);
+				}
+				else
+				{
+					JOptionPane.showMessageDialog(this,
+						    "Valid node must be selected as DODAG root.",
+						    "DODAG Tree Error",
+						    JOptionPane.ERROR_MESSAGE);
+				}
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(this, 
+						"RPL Routing must be enabled to construct DODAG tree.", 
+						"DODAG Tree Error",
+					    JOptionPane.ERROR_MESSAGE);
+			}
 		}
 		
-		//set flags in node canvas
-		canvasPane.setSignalWells(radioWellsActiveNode.isSelected(), radioWellsAllNode.isSelected());
-		canvasPane.setMeshLines(radioMeshActiveNode.isSelected(), radioMeshAllNode.isSelected());
-		canvasPane.setDistances(toggleDistances.isSelected());
-		canvasPane.setNodeIds(toggleLabels.isSelected());
-		canvasPane.setIdealRouting(idealRoutingToggle.isSelected());
-		canvasPane.setRplRouting(rplRoutingToggle.isSelected());
-		this.update();
+		//button press or otherwise
+		else
+		{
+			//set enable for edge distances and rpl root node selector
+			toggleDistances.setEnabled(radioMeshActiveNode.isSelected() || radioMeshAllNode.isSelected());	
+			rootNodeSelector.setEnabled(rplRoutingToggle.isSelected());
+			
+			//set enable for routing selectors
+			boolean route = (idealRoutingToggle.isSelected() || rplRoutingToggle.isSelected());
+			sourceSelector.setEnabled(route);
+			destinationSelector.setEnabled(route);
+			
+			//update routing information		TODO these casts should be unnecessary
+			if (route)
+			{
+				canvasPane.setRoutingNodes( (LowpanNode)sourceSelector.getSelectedItem(), 
+											(LowpanNode)destinationSelector.getSelectedItem(),
+											(LowpanNode)rootNodeSelector.getSelectedItem());
+			}
+			
+			//set flags in node canvas
+			canvasPane.setSignalWells(radioWellsActiveNode.isSelected(), radioWellsAllNode.isSelected());
+			canvasPane.setMeshLines(radioMeshActiveNode.isSelected(), radioMeshAllNode.isSelected());
+			canvasPane.setDistances(toggleDistances.isSelected());
+			canvasPane.setNodeIds(toggleLabels.isSelected());
+			canvasPane.setIdealRouting(idealRoutingToggle.isSelected());
+			canvasPane.setRplRouting(rplRoutingToggle.isSelected());
+			this.update();
+		}
 	}
 }

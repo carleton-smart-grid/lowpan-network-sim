@@ -139,11 +139,11 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener, Co
 		{
 			dispatch.reset();
 			this.removeAllNodes();
-			this.addNode("First", 100, 85, 320);
-			this.addNode("Second", 100, 265, 320);
-			this.addNode("Third", 100, 445, 320);
-			this.addNode("Forth", 100, 625, 320);
-			this.addNode("Fifth", 100, 805, 320);
+			this.addNode("Mercury", 100, 85, 320);
+			this.addNode("Venus", 100, 265, 320);
+			this.addNode("Earth", 100, 445, 320);
+			this.addNode("Mars", 100, 625, 320);
+			this.addNode("Ceres", 100, 805, 320);
 			ui.update();
 		}
 		//change to tree preset
@@ -151,16 +151,16 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener, Co
 		{
 			dispatch.reset();
 			this.removeAllNodes();
-			this.addNode("Jess", 100, 505, 50);
-			this.addNode("Nick", 100, 325, 110);
-			this.addNode("Schmidt", 100, 685, 110);
-			this.addNode("Coach", 100, 205, 260);
-			this.addNode("Cece", 100, 445, 260);
-			this.addNode("Winston", 100, 685, 260);
-			this.addNode("Caroline", 75, 115, 350);
-			this.addNode("Paul", 70, 295, 350);
-			this.addNode("Gina", 80, 385, 470);
-			this.addNode("Sadie", 65, 235, 470);
+			this.addNode("Clarke", 100, 505, 50);
+			this.addNode("Asimov", 100, 325, 110);
+			this.addNode("Heinlein", 100, 685, 110);
+			this.addNode("Kennedy", 100, 205, 260);
+			this.addNode("Banks", 100, 445, 260);
+			this.addNode("Adams", 100, 685, 260);
+			this.addNode("Capek", 75, 115, 350);
+			this.addNode("Boulle", 70, 295, 350);
+			this.addNode("Cherryh", 80, 385, 470);
+			this.addNode("Herbert", 65, 235, 470);
 			ui.update();
 		}
 		//change to sparse preset

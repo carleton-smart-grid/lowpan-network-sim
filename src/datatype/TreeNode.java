@@ -61,4 +61,27 @@ public class TreeNode<k>
 		children.add(newChild);
 		return newChild;
 	}
+	
+	
+	@Override
+	//print as string
+	public String toString()
+	{
+		return toStringHelper(this, "");
+	}
+	private String toStringHelper(TreeNode<k> curr, String offset)
+	{
+		String s = offset + curr.self.toString() + "\n";
+		offset = offset + "    ";
+		
+		if (curr.children != null)
+		{
+			for (TreeNode<k> node : curr.children)
+			{
+				s += toStringHelper(node, offset);
+			}
+		}
+		
+		return s;
+	}
 }
