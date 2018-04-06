@@ -106,7 +106,7 @@ public class NetworkView extends JFrame implements ActionListener, SizeReporter
 		this.setMinimumSize(new Dimension(0, DEFAULT_WINDOW_Y));
 		this.setResizable(true);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setIconImage(new ImageIcon("icon.gif").getImage());		
+		this.setIconImage(new ImageIcon("img/icon.gif").getImage());		
 		JPanel contentPane = new JPanel();
 		contentPane.setLayout(new BorderLayout(0, 0));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
