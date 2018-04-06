@@ -1,6 +1,5 @@
-<div style="text-align:center">
-![6LoWPAN Simulator](img/icon.gif)
-</div>
+<div style="text-align:center"><img src="img/icon.gif"/></div>
+
 # About
 View, edit, and """simulate""" a basic 6LoWPAN mesh network.
 
