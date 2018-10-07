@@ -28,6 +28,7 @@ public class TreeNode<k>
 	private TreeNode<k> parent;
 	private k self;
 	private HashSet<TreeNode<k>> children;
+	private HashSet<TreeNode<k>> nodes;
 	
 	
 	//generic constructor for node
@@ -61,6 +62,36 @@ public class TreeNode<k>
 		children.add(newChild);
 		return newChild;
 	}
+	
+	
+	//search if node has child that matches parameter (recursively)
+	public boolean hasChild(k child)
+	{
+		//check self
+		if (this.getSelf() == child)
+		{
+			return true;
+		}
+		else
+		{
+			for (TreeNode<k> n : this.getChildren())
+			{
+				if (n.getSelf() == child)
+				{
+					return true;
+				}
+				else
+				{
+					if (n.hasChild(child))
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+	}
+	
 	
 	
 	@Override

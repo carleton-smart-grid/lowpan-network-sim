@@ -196,10 +196,10 @@ public class LowpanSim implements MouseListener, ActionListener, KeyListener, Co
 			this.addNode("Claudius", 100, 505, 200);
 			this.addNode("Nero", 100, 235, 290);
 			this.addNode("Titus", 100, 415, 290);
-			this.addNode("Marcus Aurelius", 100, 595, 290);
+			this.addNode("Aurelius", 100, 595, 290);
 			this.addNode("Commodus", 100, 325, 380);
-			this.addNode("Septimius Severus", 100, 505, 380);
-			this.addNode("Constantine I", 100, 235, 470);
+			this.addNode("Septimius", 100, 505, 380);
+			this.addNode("Constantine", 100, 235, 470);
 			this.addNode("Valerian", 100, 415, 470);
 			this.addNode("Pertinax", 100, 595, 470);
 			ui.update();

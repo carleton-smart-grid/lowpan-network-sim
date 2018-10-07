@@ -180,13 +180,27 @@ public class LowpanNode
 	
 	/* convert into tree structure with self as root
 	 * guaranteed to only include shortest path(s) to any destination node
+	 * 
+	 * RETURN TreeNode containing rNode if given rNode is valid LowpanNode
+	 * ELSE return root if rNode is given as null
+	 * OTHERWISE return null if rNode cannot be found in tree
 	 */
 	public TreeNode<LowpanNode> treeify()
 	{
+		return treeify(null);
+	}
+	public TreeNode<LowpanNode> treeify(LowpanNode rNode)
+	{
+		//set instance variables
 		LinkedList<TreeNode<LowpanNode>> curLayer = new LinkedList<TreeNode<LowpanNode>>();
 		LinkedList<TreeNode<LowpanNode>> nxtLayer = new LinkedList<TreeNode<LowpanNode>>();
 		HashSet<LowpanNode> dump = new HashSet<LowpanNode>();
 		TreeNode<LowpanNode> root = new TreeNode<LowpanNode>(null, this);
+		
+		//prepare output based on rNode
+		TreeNode<LowpanNode> returnable = (rNode == null || rNode == this)?root:null;
+		
+		System.out.println("<LowpanNode.treeify>: setting RET target:" + rNode);
 		
 		//add children directly to root node
 		for (LowpanNode neighbour : this.neighbours)
@@ -196,6 +210,11 @@ public class LowpanNode
 				TreeNode<LowpanNode> child = root.addChild(neighbour);
 				dump.add(neighbour);
 				nxtLayer.add(child);
+				
+				if (neighbour == rNode && rNode != null)
+				{
+					returnable = child;
+				}
 			}
 		}
 		dump.add(this);
@@ -215,6 +234,11 @@ public class LowpanNode
 					{
 						TreeNode<LowpanNode> child = node.addChild(linked);
 						nxtLayer.add(child);
+						
+						if (linked == rNode && rNode != null)
+						{
+							returnable = child;
+						}
 					}
 				}
 			}
@@ -226,16 +250,35 @@ public class LowpanNode
 			}
 		}
 		
-		return root;
+		return returnable;
 	}
 	
 	
 	//RPL, single DODAG to destination node if possible
 	public ArrayList<LowpanNode> routeRPL(LowpanNode dest, LowpanNode dodag)
 	{
+		//Compute highest-node
+		System.out.println("<LowpanNode.routeRPL>: Calling 'treeify' on " + dodag + " with parameter" + this);
+		TreeNode<LowpanNode> top = null;
+		TreeNode<LowpanNode> src = dodag.treeify(this);
+		TreeNode<LowpanNode> tmp = src;
+		while (tmp != null)
+		{
+			if (tmp.hasChild(dest))
+			{
+				top = tmp;
+				tmp = null;
+			}
+			else
+			{
+				tmp = tmp.getParent();
+			}
+		}
+		System.out.println("<LowpanNode.routeRPL>: Top node found: " + top);
+		
 		//setup
-		ArrayList<LowpanNode> srcToDodag = computeShortestPath(this.treeify(), dodag, null);
-		ArrayList<LowpanNode> dodagToDest = computeShortestPath(dodag.treeify(), dest, null);
+		ArrayList<LowpanNode> srcToDodag = computeShortestPath(this.treeify(), top.getSelf(), null);
+		ArrayList<LowpanNode> dodagToDest = computeShortestPath(top.getSelf().treeify(), dest, null);
 		
 		if (srcToDodag != null && dodagToDest != null)
 		{
@@ -256,11 +299,14 @@ public class LowpanNode
 	//route to destination node if the node exists
 	public ArrayList<LowpanNode> routeIdeal(LowpanNode dest)
 	{
-		//setup
+		//setup and compute path
 		TreeNode<LowpanNode> root = this.treeify();
 		ArrayList<LowpanNode> route = computeShortestPath(root, dest, null);
 		
-		//TODO delete this block
+		/*
+		 * TODO delete this block
+		 * print out path with least hops
+		 */
 		String s = "";
 		if (route != null)
 		{
@@ -346,7 +392,10 @@ public class LowpanNode
 		else if (obj instanceof LowpanNode)
 		{
 			LowpanNode otherNode = (LowpanNode)obj;
-			return (name.equals(otherNode.name) && id == otherNode.id && range == otherNode.range && location.equals(otherNode.location));
+			return (this.name.equals(otherNode.name) && 
+					this.id == otherNode.id && 
+					this.range == otherNode.range && 
+					this.location.equals(otherNode.location));
 		}
 		else
 		{
@@ -359,6 +408,6 @@ public class LowpanNode
 	//nice printable
 	public String toString()
 	{
-		return "Node " + id;
+		return "Node " + this.id;
 	}
 }
